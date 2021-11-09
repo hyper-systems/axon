@@ -1,0 +1,7 @@
+#
+# Copyright (c) 2021 Hyper Collective LTD
+#
+
+config HYPER_DEVICE_HYDROKIT_SUPPORT
+	bool "hyper-device-hydrokit-support"
+	select MCP342X

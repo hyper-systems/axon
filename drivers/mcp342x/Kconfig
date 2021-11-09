@@ -1,0 +1,6 @@
+
+config MCP342X
+	bool "MCP342X ADC chip"
+	depends on I2C
+	help
+	  Enable driver for MCP342X ADC chips.

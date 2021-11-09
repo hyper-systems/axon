@@ -1,0 +1,35 @@
+#
+# Copyright (c) 2021 Hyper Collective LTD
+#
+
+menu "Zephyr Kernel"
+source "Kconfig.zephyr"
+endmenu
+
+module = MAIN
+module-str = Axon Firmware
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+module = COAP_CLIENT
+module-str = CoAP client
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+module = OT_UTILS
+module-str = OpenThread utilities
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+module = BLE_UTILS
+module-str = Bluetooth connection utilities
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+module = EXTENSION_UTILS
+module-str = Hyper Extension utilities
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+menu "Hyper Devices support"
+rsource "hyper_device/Kconfig"
+endmenu
+
+menu "Hyper Drivers"
+rsource "../drivers/Kconfig"
+endmenu

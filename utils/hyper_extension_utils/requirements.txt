@@ -1,0 +1,4 @@
+hidapi
+adafruit-blinka
+numpy
+argparse

@@ -1,0 +1,10 @@
+# Axon v1.0 board configuration
+
+# Copyright (c) 2021 Hyper Collective LTD
+# All rights reserved
+
+config BOARD_ENABLE_DCDC
+	bool "Enable DCDC mode"
+	select SOC_DCDC_NRF52X
+	default y
+	depends on BOARD_AXON_V1_0_NRF52840

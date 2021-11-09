@@ -1,0 +1,3 @@
+
+rsource "mcp342x/Kconfig"
+rsource "veml7700/Kconfig"
