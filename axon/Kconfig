@@ -29,7 +29,3 @@ source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
 menu "Hyper Devices support"
 rsource "hyper_device/Kconfig"
 endmenu
-
-menu "Hyper Drivers"
-rsource "../drivers/Kconfig"
-endmenu

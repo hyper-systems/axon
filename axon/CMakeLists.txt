@@ -10,6 +10,14 @@ set(BOARD_ROOT ${PROJECT_ROOT_DIR}/)
 
 list(INSERT OVERLAY_CONFIG 0 ${PROJECT_ROOT_DIR}/ncs/nrf/samples/openthread/common/overlay-ot-defaults.conf)
 
+# add extenal libs modules
+set(ZEPHYR_EXTRA_MODULES
+   # add Hyper Drivers module
+   ${PROJECT_ROOT_DIR}/drivers
+   # add external libs module
+   ${PROJECT_ROOT_DIR}/lib
+)
+
 # Find Zephyr. This also loads Zephyr's build system.
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(axon)
@@ -19,13 +27,6 @@ target_sources(app PRIVATE ${SRC_FILES})
 target_include_directories(app PUBLIC ${PROJECT_SOURCE_DIR}/src/)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/hyper_device)
-target_include_directories(app PRIVATE $ENV{ZEPHYR_BASE}/subsys/net/ip)
-
-# add external libs
-add_subdirectory(${PROJECT_ROOT_DIR}/lib external_libs)
-
-# add drivers dir
-add_subdirectory(${PROJECT_ROOT_DIR}/drivers common_drivers)
 
 # add HYPER_FIRMWARE_VER macro
 execute_process(

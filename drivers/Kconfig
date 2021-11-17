@@ -1,3 +1,17 @@
 
+menuconfig HYPER_DRIVERS
+        bool "Hyper Drivers"
+        default y
+        help
+          Enable support for Hyper Drivers
+
+if HYPER_DRIVERS
+
+module = HYPER_DRIVERS
+module-str = HYPER_DRIVERS
+source "subsys/logging/Kconfig.template.log_config"
+
 rsource "mcp342x/Kconfig"
 rsource "veml7700/Kconfig"
+
+endif

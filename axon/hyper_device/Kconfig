@@ -2,6 +2,12 @@
 # Copyright (c) 2021 Hyper Collective LTD
 #
 
-config HYPER_DEVICE_HYDROKIT_SUPPORT
-	bool "hyper-device-hydrokit-support"
-	select MCP342X
+config HYPER_DEVICE
+	bool "hyper-device"
+	default y
+	depends on I2C
+	select LIBCMP
+
+if HYPER_DEVICE
+rsource "hyper-device-hydrokit/Kconfig"
+endif
