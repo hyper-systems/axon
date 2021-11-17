@@ -22,7 +22,7 @@ FLASHER_RUNNER = nrfjprog
 endif
 
 ifndef TARGET_BOARD
-TARGET_BOARD = axon_v1_0_nrf52840
+TARGET_BOARD = axon_v1_3_0_nrf52840
 $(warning TARGET_BOARD not defined, defaulting to: "$(TARGET_BOARD)")
 endif
 
