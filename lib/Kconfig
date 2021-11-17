@@ -1,0 +1,6 @@
+
+config LIBCMP
+	bool "libcmp"
+	default n
+	help
+	  Enable support for libcmp

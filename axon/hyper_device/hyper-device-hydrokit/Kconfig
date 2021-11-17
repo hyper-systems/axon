@@ -1,0 +1,8 @@
+#
+# Copyright (c) 2021 Hyper Collective LTD
+#
+
+config HYPER_DEVICE_HYDROKIT
+	bool "hyper-device-hydrokit"
+	default y
+	select MCP342X
