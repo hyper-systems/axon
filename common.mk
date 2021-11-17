@@ -137,6 +137,12 @@ flash-noerase:
 		west flash \
 	)
 
+.PHONY: recover
+recover:
+	$(call build_env,\
+		nrfjprog --recover \
+	)
+
 .PHONY: debug
 debug:
 	$(call build_env,\
