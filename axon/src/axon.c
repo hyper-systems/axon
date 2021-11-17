@@ -54,34 +54,43 @@ struct device *gpio_dev1;
 #define CON3_GPIO_PIN 28
 
 #define BME280 DT_INST(0, bosch_bme280)
+#define SHT3XD DT_INST(0, sensirion_sht3xd)
 
 #if DT_NODE_HAS_STATUS(BME280, okay)
-#define BME280_LABEL DT_LABEL(BME280)
+#define ENV_SENSORS_LABEL DT_LABEL(BME280)
+#elif DT_NODE_HAS_STATUS(SHT3XD, okay)
+#define ENV_SENSORS_LABEL DT_LABEL(SHT3XD)
 #else
-#error Your devicetree has no enabled nodes with compatible "bosch,bme280"
-#define BME280_LABEL "<none>"
+#error Your devicetree has no enabled nodes with compatible "bosch,bme280" or "sensirion,sht3xd"
+#define ENV_SENSORS_LABEL "<none>"
 #endif
 
 #define OPT3001 DT_INST(0, ti_opt3001)
+#define VEML7700  DT_INST(0, vishay_veml7700)
 
 #if DT_NODE_HAS_STATUS(OPT3001, okay)
-#define OPT3001_LABEL DT_LABEL(OPT3001)
+#define ALS_SENSOR_LABEL DT_LABEL(OPT3001)
+#elif DT_NODE_HAS_STATUS(VEML7700, okay)
+#include "veml7700.h"
+#define ALS_SENSOR_LABEL DT_LABEL(VEML7700)
 #else
-#error Your devicetree has no enabled nodes with compatible "ti,opt3001"
-#define OPT3001_LABEL "<none>"
+#error Your devicetree has no enabled nodes with compatible "ti,opt3001" or "vishay,veml7700"
+#define ALS_SENSOR_LABEL "<none>"
 #endif
 
 typedef struct __attribute((packed))
 {
 	float temp;
+#ifdef ENVIRONMENT_SENSOR_HAS_PRESSURE
 	float press;
+#endif
 	float humid;
-} bme280_vals_t;
+} environment_vals_t;
 
-static struct device *bme;
-static struct device *opt;
-static bme280_vals_t bme280_vals = {0};
-static float opt_val = 0;
+static struct device *env_sensors;
+static struct device *als_sensor;
+static environment_vals_t environment_sensor_vals = {0};
+static float als_val = 0;
 
 struct device *ext_i2c_bus_dev;
 
@@ -91,45 +100,59 @@ static void (*axon_publish_interval_cb)(void) = NULL;
 
 float axon_temp_get(void)
 {
-	return bme280_vals.temp;
+	return environment_sensor_vals.temp;
 }
 
+#ifdef ENVIRONMENT_SENSOR_HAS_PRESSURE
 float axon_press_get(void)
 {
-	return bme280_vals.press;
+	return environment_sensor_vals.press;
 }
+#endif
 
 float axon_humid_get(void)
 {
-	return bme280_vals.humid;
+	return environment_sensor_vals.humid;
 }
 
 float axon_luminosity_get(void)
 {
-	return opt_val;
+	return als_val;
 }
 
-static int axon_bme_sample_fetch(void)
+static int axon_env_sensor_sample_fetch(void)
 {
-	struct sensor_value temp, press, humidity;
+	struct sensor_value temp, humidity;
 
-	if (bme != NULL)
+	if (env_sensors != NULL)
 	{
-		sensor_sample_fetch(bme);
-		sensor_channel_get(bme, SENSOR_CHAN_AMBIENT_TEMP, &temp);
-		sensor_channel_get(bme, SENSOR_CHAN_PRESS, &press);
-		sensor_channel_get(bme, SENSOR_CHAN_HUMIDITY, &humidity);
+		sensor_sample_fetch(env_sensors);
+		sensor_channel_get(env_sensors, SENSOR_CHAN_AMBIENT_TEMP, &temp);
+		sensor_channel_get(env_sensors, SENSOR_CHAN_HUMIDITY, &humidity);
+#ifdef ENVIRONMENT_SENSOR_HAS_PRESSURE
+	struct sensor_value press;
+		sensor_channel_get(env_sensors, SENSOR_CHAN_PRESS, &press);
 
 		LOG_INF("temp: %d.%06d; press: %d.%06d; humidity: %d.%06d;\n",
 				temp.val1, temp.val2, press.val1, press.val2,
 				humidity.val1, humidity.val2);
 
-		bme280_vals.temp = temp.val1 + ((float)temp.val2 / 1000000);
-		bme280_vals.press = press.val1 + ((float)press.val2 / 1000000);
-		bme280_vals.humid = humidity.val1 + ((float)humidity.val2 / 1000000);
+		environment_sensor_vals.temp = temp.val1 + ((float)temp.val2 / 1000000);
+		environment_sensor_vals.press = press.val1 + ((float)press.val2 / 1000000);
+		environment_sensor_vals.humid = humidity.val1 + ((float)humidity.val2 / 1000000);
 
 		printk("temp: %f; press: %f; humidity: %f;\n",
-			   bme280_vals.temp, bme280_vals.press, bme280_vals.humid);
+			   environment_sensor_vals.temp, environment_sensor_vals.press, environment_sensor_vals.humid);
+#else
+		LOG_INF("temp: %d.%06d; humidity: %d.%06d;\n",
+				temp.val1, temp.val2, humidity.val1, humidity.val2);
+
+		environment_sensor_vals.temp = temp.val1 + ((float)temp.val2 / 1000000);
+		environment_sensor_vals.humid = humidity.val1 + ((float)humidity.val2 / 1000000);
+
+		printk("temp: %f; humidity: %f;\n",
+			   environment_sensor_vals.temp, environment_sensor_vals.humid);
+#endif
 
 		return 0;
 	}
@@ -139,17 +162,17 @@ static int axon_bme_sample_fetch(void)
 	}
 }
 
-static int axon_opt_sample_fetch(void)
+static int axon_als_sample_fetch(void)
 {
 	struct sensor_value luminosity;
-	if (opt != NULL)
+	if (als_sensor != NULL)
 	{
-		sensor_sample_fetch(opt);
-		sensor_channel_get(opt, SENSOR_CHAN_LIGHT, &luminosity);
+		sensor_sample_fetch(als_sensor);
+		sensor_channel_get(als_sensor, SENSOR_CHAN_LIGHT, &luminosity);
 		LOG_INF("luminosity: %d.%06d;\n", luminosity.val1, luminosity.val2);
-		opt_val = luminosity.val1 + ((float)luminosity.val2 / 1000000);
+		als_val = luminosity.val1 + ((float)luminosity.val2 / 1000000);
 
-		printk("luminosity: %f;\n", opt_val);
+		printk("luminosity: %f;\n", als_val);
 
 		return 0;
 	}
@@ -162,12 +185,12 @@ static int axon_opt_sample_fetch(void)
 int axon_sensors_sample_fetch(void)
 {
 	int ret;
-	ret = axon_bme_sample_fetch();
+	ret = axon_env_sensor_sample_fetch();
 	if (ret)
 	{
 		return ret;
 	}
-	ret = axon_opt_sample_fetch();
+	ret = axon_als_sample_fetch();
 	if (ret)
 	{
 		return ret;
@@ -273,10 +296,10 @@ static int axon_buttons_init()
 static int axon_sensors_init(void)
 {
 	int retval = 0;
-	if (hyper_dev_init(&bme, BME280_LABEL))
+	if (hyper_dev_init(&env_sensors, ENV_SENSORS_LABEL))
 		retval = 1;
 
-	if (hyper_dev_init(&opt, OPT3001_LABEL))
+	if (hyper_dev_init(&als_sensor, ALS_SENSOR_LABEL))
 		retval = 1;
 
 	return retval;

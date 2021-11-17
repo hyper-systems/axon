@@ -16,6 +16,10 @@ typedef enum
   HYPER_EXTENSION_MCU
 } hyper_extension_type_t;
 
+#if defined(CONFIG_BOARD_AXON_V1_0_NRF52840) || defined(CONFIG_BOARD_AXON_V0_2_NRF52840)
+#define ENVIRONMENT_SENSOR_HAS_PRESSURE
+#endif
+
 int hyper_extension_bus_init(void);
 int hyper_extension_eeprom_read(uint8_t *buff, uint8_t len, uint8_t pointer, uint16_t i2c_addr);
 int hyper_extension_eui48_read(uint8_t *data);
@@ -26,7 +30,9 @@ int hyper_extension_bus_i2c_write(const uint8_t *buf, uint32_t num_bytes, uint16
 int hyper_extension_bus_i2c_read(uint8_t *buf, uint32_t num_bytes, uint16_t addr);
 
 float axon_temp_get(void);
+#ifdef ENVIRONMENT_SENSOR_HAS_PRESSURE
 float axon_press_get(void);
+#endif
 float axon_humid_get(void);
 float axon_luminosity_get(void);
 int axon_sensors_sample_fetch(void);
