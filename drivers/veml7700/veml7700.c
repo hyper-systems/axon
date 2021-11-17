@@ -8,9 +8,8 @@
 #include <device.h>
 #include <drivers/i2c.h>
 #include <drivers/sensor.h>
-#include <sys/__assert.h>
 #include <logging/log.h>
-#include <stdio.h>
+#include <sys/__assert.h>
 
 #include "veml7700.h"
 
@@ -259,15 +258,11 @@ int veml7700_init(const struct device *dev)
 		return -EINVAL;
 	}
 
+	// TODO: this is a hack!!
+	veml7700_power_on(dev);
+
 	return 0;
 }
-
-static struct veml7700_data veml7700_drv_data;
-
-DEVICE_DT_INST_DEFINE(0, veml7700_init, device_pm_control_nop,
-	    &veml7700_drv_data, NULL, POST_KERNEL,
-	    CONFIG_SENSOR_INIT_PRIORITY, &veml7700_driver_api);
-
 
 float veml7700_fetch_lux(const struct device *dev)
 {
@@ -299,11 +294,11 @@ float veml7700_auto_measure(const struct device *dev)
 		}
 		else
 		{
-			printf("auto_measure>sample %d not optimal ; gain = %.3f ; it = %d ms\n",
+			LOG_INF("auto_measure>sample %d not optimal ; gain = %.3f ; it = %d ms\n",
 					drv_data->sample, drv_data->gain, drv_data->integration_ms);
 			//update both integration and gain to the new optimal value
 			veml7700_it_gain_update(drv_data,modes_flags[optimal_mode]);
-			printf("auto_measure>new params => gain = %f ; it = %d\n",drv_data->gain,drv_data->integration_ms);
+			LOG_INF("auto_measure>new params => gain = %f ; it = %d\n",drv_data->gain,drv_data->integration_ms);
 			optimal_measure = false;
 		}
 	}
@@ -313,3 +308,9 @@ float veml7700_auto_measure(const struct device *dev)
 	drv_data->lum_lux = measure_lux;
 	return measure_lux;
 }
+
+static struct veml7700_data veml7700_drv_data;
+
+DEVICE_DT_INST_DEFINE(0, veml7700_init, NULL,
+		    &veml7700_drv_data, NULL, POST_KERNEL,
+		    CONFIG_SENSOR_INIT_PRIORITY, &veml7700_driver_api);
