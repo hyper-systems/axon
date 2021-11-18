@@ -1,6 +1,6 @@
-[submodule "mcumgr/mcumgr-cli"]
-	path = mcumgr/mcumgr-cli
-	url = https://github.com/apache/mynewt-mcumgr-cli.git
 [submodule "lib/cmp"]
 	path = lib/cmp
 	url = https://github.com/camgunz/cmp.git
+[submodule "utils/mcumgr/mcumgr-cli"]
+	path = utils/mcumgr/mcumgr-cli
+	url = https://github.com/apache/mynewt-mcumgr-cli.git
