@@ -8,8 +8,6 @@ set(PROJECT_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../)
 # set custom `boards` directory
 set(BOARD_ROOT ${PROJECT_ROOT_DIR}/)
 
-list(INSERT OVERLAY_CONFIG 0 ${PROJECT_ROOT_DIR}/ncs/nrf/samples/openthread/common/overlay-ot-defaults.conf)
-
 # add extenal libs modules
 set(ZEPHYR_EXTRA_MODULES
    # add Hyper Drivers module

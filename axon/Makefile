@@ -1,7 +1,18 @@
 PROJECT_ROOT_PATH := $(abspath $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
 include $(PROJECT_ROOT_PATH)/../common.mk
 
-OVERLAY_CONFIG_DEFAULT = $(COMMON_ROOT_PATH)/overlays/overlay-hyper-ot.conf;overlay-nrf5.conf
+OVERLAY_CONFIG_DEFAULT := $(OVERLAY_CONFIG_DEFAULT);$(COMMON_ROOT_PATH)/overlays/overlay-hyper-ot.conf;overlay-nrf5.conf
+
+# add Nordic OpenThread Defaults overlay
+OT_OVERLAY := $(COMMON_ROOT_PATH)/ncs/nrf/samples/openthread/common/overlay-ot-defaults.conf
+# insert prj.conf again to reset some of the previous overrides
+OT_OVERLAY := $(OT_OVERLAY);$(PROJECT_ROOT_PATH)/prj.conf
+# add Hyper OpenThread overlay
+OT_OVERLAY := $(OT_OVERLAY);$(COMMON_ROOT_PATH)/overlays/overlay-hyper-ot.conf
+# nRF5 specific overlay
+NRF5_OVERLAY := $(PROJECT_ROOT_PATH)/overlay-nrf5.conf
+# default overlays
+OVERLAY_CONFIG_DEFAULT = $(OT_OVERLAY);$(NRF5_OVERLAY)
 
 .PHONY: build
 build: check_deps
