@@ -19,7 +19,7 @@ LOG_MODULE_REGISTER(coap_client, CONFIG_COAP_CLIENT_LOG_LEVEL);
 
 /* Options supported by the server */
 static char from_addr_str[INET6_ADDRSTRLEN];
-static const char *const coap_uri_path_options[] = {"incoming", "v2", NULL};
+static const char *const coap_uri_path_options[] = {"incoming", "v3", NULL};
 
 void (*on_response_data_handler)(uint8_t *data, uint8_t data_len) = NULL;
 

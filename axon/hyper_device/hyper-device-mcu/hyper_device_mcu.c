@@ -223,7 +223,7 @@ static int extension_read_loop(void)
 	return hyper_extension.status;
 }
 
-void hyper_device_mcu_set_data(uint8_t *data, uint8_t data_len)
+hyper_result_t hyper_device_mcu_set_data(uint8_t *data, uint8_t data_len)
 {
 	LOG_INF("raw_msg_without_header (len: %u): ", data_len);
 	hyper_hexdump(data, data_len);
@@ -242,11 +242,11 @@ void hyper_device_mcu_set_data(uint8_t *data, uint8_t data_len)
 			LOG_INF("Data written to MCU extension!");
 		}
 	}
+	return HYPER_OK;
 }
 
-uint8_t hyper_device_mcu_get_data(uint8_t *data)
+hyper_result_t hyper_device_mcu_get_data(uint8_t *data, uint8_t *data_len)
 {
-	uint8_t message_len = 0;
 
 	extension_read_loop();
 
@@ -254,10 +254,10 @@ uint8_t hyper_device_mcu_get_data(uint8_t *data)
 	{
 		memcpy(data, hyper_extension.data, hyper_extension.data_size);
 		LOG_INF("Got extension data (size=%u)!", hyper_extension.data_size);
-		message_len = hyper_extension.data_size;
+		*data_len = hyper_extension.data_size;
 	}
 
-	return message_len;
+	return HYPER_OK;
 }
 
 int hyper_device_mcu_init(hyper_device_reg_t *reg)
@@ -267,11 +267,11 @@ int hyper_device_mcu_init(hyper_device_reg_t *reg)
 
 	// extract device id from extension payload
 	extension_read_loop();
-	ret = hyper_msgpack_extract_device_id(device_id, hyper_extension.data, hyper_extension.data_size);
-    LOG_HEXDUMP_INF(device_id, 6, "hyper_msgpack_extract_device_id:");
+	ret = hyper_msgpack_decode_device_id(device_id, hyper_extension.data, hyper_extension.data_size);
+    LOG_HEXDUMP_INF(device_id, 6, "hyper_msgpack_decode_device_id:");
     if (ret)
     {
-        LOG_ERR("hyper_msgpack_extract_device_id() failed with exit code: %d\n", ret);
+        LOG_ERR("hyper_msgpack_decode_device_id() failed with exit code: %d\n", ret);
         return ret;
     }
 

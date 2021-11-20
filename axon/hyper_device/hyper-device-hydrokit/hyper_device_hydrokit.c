@@ -1,11 +1,11 @@
 #include <logging/log.h>
 #include "axon.h"
 #include "hyper_device_hydrokit.h"
-#include "hyper-device-class-13-hyper_hydrokit_v1_0_2.V2.gen.h"
 #include "mcp342x.h"
 #include <math.h>
 
 LOG_MODULE_REGISTER(hyper_device_hydrokit, CONFIG_MAIN_LOG_LEVEL);
+#include "hyper_device_13_v3.gen.h"
 
 static hyper_device_13_t hyper_device_13 = {0};
 
@@ -153,7 +153,7 @@ static int hydrokit_read_temp(float *temp_c_deg)
 	return ret;
 }
 
-static uint8_t hyper_device_hydrokit_get_data(uint8_t *data)
+static hyper_result_t hyper_device_hydrokit_get_data(uint8_t *data, uint8_t *data_len)
 {
 	float ph_volt, ec_gain, orp_volt, temp_c_deg;
 	int ret = 0;
@@ -199,13 +199,20 @@ static uint8_t hyper_device_hydrokit_get_data(uint8_t *data)
 	}
 
 	// Pretty-print device.
-	hyper_device_13_pp(&hyper_device_13);
+	hyper_device_13_print(&hyper_device_13);
 
 	// [SEND] Encode device.
-	uint8_t message_len = hyper_device_13_encode(&hyper_device_13, data);
-	LOG_INF("Encoding device data (size=%d)", message_len);
+	hyper_result_t res;
 
-	return message_len;
+	res = hyper_device_13_encode(&hyper_device_13, data, data_len);
+	if (ret != HYPER_OK)
+	{
+		LOG_ERR("hyper_device_11_encode failed with error %d", ret);
+		return ret;
+	}
+	LOG_INF("Encoding device data (size=%d)", *data_len);
+
+	return res;
 }
 
 bool hyper_device_hydrokit_is_hydrokit(uint32_t class_id)

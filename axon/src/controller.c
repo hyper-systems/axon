@@ -22,7 +22,10 @@ static void hyper_controller_on_message_per_device_id_cb(uint8_t *device_id, uin
         {
             if (hyper_extensions_registry[i].set_data != NULL)
             {
-                hyper_extensions_registry[i].set_data(data, data_len);
+                if (hyper_extensions_registry[i].set_data(data, data_len) != HYPER_OK)
+                {
+                    return;
+                }
                 LOG_HEXDUMP_INF(device_id, 6, "Calling callback for:");
                 return;
             }
@@ -43,9 +46,9 @@ static void hyper_controller_on_message_handler(uint8_t *data, uint8_t data_len)
     if (data_len != 0)
     {
         uint8_t device_id[6];
-        if (hyper_msgpack_extract_device_id(device_id, data, data_len))
+        if (hyper_msgpack_decode_device_id(device_id, data, data_len))
         {
-            LOG_ERR("hyper_msgpack_extract_device_id() failed! Ignoring...");
+            LOG_ERR("hyper_msgpack_decode_device_id() failed! Ignoring...");
             return;
         }
         else
@@ -120,10 +123,13 @@ static void hyper_controller_publish()
         {
             // reset buffer
             memset(hyper_message_buffer, 0, sizeof(hyper_message_buffer));
-            uint8_t data_len = hyper_extensions_registry[i].get_data(hyper_message_buffer);
-            if (data_len > 0)
+            uint8_t data_len;
+            if (hyper_extensions_registry[i].get_data(hyper_message_buffer, &data_len) == HYPER_OK)
             {
-                transport_publish(hyper_message_buffer, data_len);
+                if (data_len > 0)
+                {
+                    transport_publish(hyper_message_buffer, data_len);
+                }
             }
         }
     }
