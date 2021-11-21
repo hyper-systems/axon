@@ -106,10 +106,10 @@ $(NCS_SRC_PATH):
 
 .PHONY: bootstrap_build_env
 bootstrap_build_env: check_deps bootstrap_python_venv $(NCS_SRC_PATH)
-
-.PHONY: update_nrf
-update_nrf: bootstrap_build_env
-	$(call build_env,$(UPDATE_NRF_CMDS))
+	$(call build_env,\
+		pip3 install -r $(COMMON_ROOT_PATH)/utils/hyper_extension_utils/requirements.txt \
+	)
+	
 
 .PHONY: build
 build: bootstrap_build_env check_deps
