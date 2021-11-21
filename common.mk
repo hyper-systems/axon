@@ -34,18 +34,6 @@ define build_env
 	@( \
 		set -e; \
 		. $(VENV_PATH)/bin/activate; \
-		if [ "$(FLASHER_RUNNER)" = "nrfjprog" ]; then \
-			if [ "$(UNAME_S)" = "Darwin" ] && [ "$$(uname -m)" = "arm64" ]; then \
-				if [ -z "$${JLINK_DLL_X86_64_PATH+x}" ]; then \
-					echo "Needs to inject DLL into 'nrfjprog', pass 'JLINK_DLL_X86_64_PATH'"; \
-					exit 1; \
-				else \
-					echo "Injecting DLL into 'nrfjprog'..."; \
-					ln -sf $(COMMON_ROOT_PATH)/utils/nrfjprog_wrapper.sh \
-						$(VENV_PATH)/bin/nrfjprog; \
-				fi; \
-			fi; \
-		fi; \
 		export ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb; \
 		export GNUARMEMB_TOOLCHAIN_PATH="$(GNUARMEMB_TOOLCHAIN_PATH)"; \
 		test -f $(NCS_SRC_PATH)/zephyr/zephyr-env.sh && \
