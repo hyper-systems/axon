@@ -14,30 +14,6 @@ static hyper_device_reg_t hyper_extensions_registry[HYPER_EXTENSIONS_REGISTRY_MA
 
 static uint8_t hyper_message_buffer[256] = {0};
 
-static void hyper_controller_on_message_per_device_id_cb(uint8_t *device_id, uint8_t *data, uint8_t data_len)
-{
-    for (int i = 0; i < HYPER_EXTENSIONS_REGISTRY_MAX; i++)
-    {
-        if (!memcmp(hyper_extensions_registry[i].device_id, device_id, sizeof(device_id)))
-        {
-            if (hyper_extensions_registry[i].set_data != NULL)
-            {
-                if (hyper_extensions_registry[i].set_data(data, data_len) != HYPER_OK)
-                {
-                    return;
-                }
-                LOG_HEXDUMP_INF(device_id, 6, "Calling callback for:");
-                return;
-            }
-            else
-            {
-                LOG_HEXDUMP_ERR(device_id, 6, "Callback is not set for:");
-                return;
-            }
-        }
-    }
-    LOG_HEXDUMP_ERR(device_id, 6, "No callback found for:");
-}
 
 static void hyper_controller_on_message_handler(uint8_t *data, uint8_t data_len)
 {
@@ -53,7 +29,27 @@ static void hyper_controller_on_message_handler(uint8_t *data, uint8_t data_len)
         }
         else
         {
-            hyper_controller_on_message_per_device_id_cb(device_id, data, data_len);
+            for (int i = 0; i < HYPER_EXTENSIONS_REGISTRY_MAX; i++)
+            {
+                if (!memcmp(hyper_extensions_registry[i].device_id, device_id, sizeof(device_id)))
+                {
+                    if (hyper_extensions_registry[i].set_data != NULL)
+                    {
+                        if (hyper_extensions_registry[i].set_data(data, data_len) != HYPER_OK)
+                        {
+                            return;
+                        }
+                        LOG_HEXDUMP_INF(device_id, 6, "Called callback for:");
+                        return;
+                    }
+                    else
+                    {
+                        LOG_HEXDUMP_ERR(device_id, 6, "Called is not set for:");
+                        return;
+                    }
+                }
+            }
+            LOG_HEXDUMP_ERR(device_id, 6, "No callback found for:");
         }
     }
 }
@@ -121,7 +117,7 @@ static void hyper_controller_publish()
     {
         if (hyper_extensions_registry[i].get_data != NULL)
         {
-            // reset buffer
+            // reset message buffer
             memset(hyper_message_buffer, 0, sizeof(hyper_message_buffer));
             uint8_t data_len;
             if (hyper_extensions_registry[i].get_data(hyper_message_buffer, &data_len) == HYPER_OK)
