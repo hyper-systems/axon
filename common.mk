@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 COMMON_ROOT_PATH := $(abspath $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
 VENV_PATH = $(COMMON_ROOT_PATH)/.venv
 NCS_SRC_PATH = $(COMMON_ROOT_PATH)/ncs
@@ -17,8 +18,15 @@ endif
 $(info Overriding GNUARMEMB_TOOLCHAIN_PATH variable, with value: '$(GNUARMEMB_TOOLCHAIN_PATH)')
 endif
 
+ifndef CI
 ifndef FLASHER_RUNNER
 FLASHER_RUNNER = nrfjprog
+endif
+ifeq ($(FLASHER_RUNNER),nrfjprog)
+ifeq (, $(shell which nrfjprog))
+$(error "Missing dependency: nrfjprog")
+endif
+endif
 endif
 
 ifndef TARGET_BOARD
@@ -69,15 +77,15 @@ check_deps:
 	$(call check_dep, dfu-util)
 	$(call check_dep, dtc)
 	$(call check_dep, python3)
-	$(call check_dep, nrfjprog)
 	@which $(GNUARMEMB_TOOLCHAIN_PATH)/bin/arm-none-eabi-gcc > /dev/null || \
 		(echo 'Missing 'arm-none-eabi-gcc-$(GNUARMEMB_TOOLCHAIN_VERSION)' toolchain, not installed at '$(GNUARMEMB_TOOLCHAIN_PATH)' !'; exit 1)
 
 $(VENV_PATH)/bin/activate:
 	@set -e && \
 	python3 -m venv $(VENV_PATH) && \
-	source $(VENV_PATH)/bin/activate && \
-	python3 -m pip install --upgrade pip
+	. $(VENV_PATH)/bin/activate && \
+	python3 -m pip install --upgrade pip && \
+	pip install wheel
 
 .PHONY: bootstrap_python_venv
 bootstrap_python_venv: $(VENV_PATH)/bin/activate
