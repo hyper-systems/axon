@@ -285,6 +285,7 @@ static void on_button_changed(uint32_t button_state, uint32_t has_changed)
 	if (buttons & BUTTON1_MSK)
 	{
 		axon_publish_interval_cb();
+		axon_publish_interval_timer_reset();
 	}
 }
 
@@ -334,6 +335,12 @@ void axon_publish_interval_set(uint16_t interval_sec)
 uint16_t axon_publish_interval_get(void)
 {
 	return axon_publish_interval;
+}
+
+void axon_publish_interval_timer_reset(void)
+{
+	k_timer_stop(&axon_publish_interval_timer);
+	k_timer_start(&axon_publish_interval_timer, K_SECONDS(axon_publish_interval), K_SECONDS(axon_publish_interval));
 }
 
 static int axon_led_init()

@@ -41,6 +41,7 @@ void axon_trigger_cold_reboot(void);
 int64_t axon_uptime_get(void);
 uint16_t axon_publish_interval_get(void);
 void axon_publish_interval_set(uint16_t publish_interval);
+void axon_publish_interval_timer_reset(void);
 void axon_publish_interval_callback_set(void (*publish_interval_cb)(void));
 int axon_led_set_blink(uint32_t delay_on, uint32_t delay_off);
 int axon_led_set_on(void);
