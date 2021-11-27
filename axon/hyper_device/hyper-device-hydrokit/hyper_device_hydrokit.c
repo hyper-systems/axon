@@ -11,6 +11,11 @@ static hyper_device_13_t hyper_device_13 = {0};
 
 const uint32_t hydrokit_class_ids[] = {9, 13};
 
+#define HYPER_EXTENSION_DATA_PH_OFFSET 0x04
+#define HYPER_EXTENSION_DATA_ORP_OFFSET 0x08
+#define HYPER_EXTENSION_DATA_EC_OFFSET 0x00
+#define HYPER_EXTENSION_DATA_RTD_OFFSET 0x0c
+
 #define ADC_GAIN MCP342X_GAIN1
 #define ADC_RESOLUTION MCP342X_RES_12
 #define ADC_READINGS 120
@@ -22,7 +27,7 @@ mcp342x_t adc_ph_dev = {
 	.mode = MCP342X_ONESHOT};
 mcp342x_t adc_ec_dev = {
 	.channel = MCP342X_CHANNEL1,
-	.gain = MCP342X_GAIN1,
+	.gain = MCP342X_GAIN2,
 	.resolution = MCP342X_RES_12,
 	.mode = MCP342X_ONESHOT};
 mcp342x_t adc_orp_dev = {
@@ -57,6 +62,30 @@ static int adc_init(mcp342x_t *adc_dev, uint8_t i2c_addr)
 	return ret;
 }
 
+static int hydrokit_ph_calib_data_read(float *data)
+{
+	return hyper_extension_data_read((uint8_t *)data,
+					 sizeof(float), HYPER_EXTENSION_DATA_PH_OFFSET);
+}
+
+static int hydrokit_orp_calib_data_read(float *data)
+{
+	return hyper_extension_data_read((uint8_t *)data,
+					 sizeof(float), HYPER_EXTENSION_DATA_ORP_OFFSET);
+}
+
+static int hydrokit_ec_calib_data_read(float *data)
+{
+	return hyper_extension_data_read((uint8_t *)data,
+					 sizeof(float), HYPER_EXTENSION_DATA_EC_OFFSET);
+}
+
+__unused static int hydrokit_rtd_calib_data_read(float *data)
+{
+	return hyper_extension_data_read((uint8_t *)data,
+					 sizeof(float), HYPER_EXTENSION_DATA_RTD_OFFSET);
+}
+
 static int hydrokit_read_ph(float *ph_volt)
 {
 	int ret = 0;
@@ -66,16 +95,23 @@ static int hydrokit_read_ph(float *ph_volt)
 		LOG_ERR("mcp342x_average_oneshot_conversion_volt() for pH failed with exit code: %d\n", ret);
 		return ret;
 	}
+	// Read calibration data stored in the eeprom
+	float calib_data = 0;
+	ret = hydrokit_ph_calib_data_read(&calib_data);
+	if (ret)
+	{
+		LOG_ERR("hydrokit_ph_calib_data_read() failed with exit code: %d\n", ret);
+		return ret;
+	}
+	LOG_INF("hydrokit_ph_calib_data_read(): %fV", calib_data);
 
-	// Remove 1.250V of voltage reference
-	*ph_volt = *ph_volt - 1.250;
+	// Remove 1.25V of voltage reference
+	*ph_volt = *ph_volt - 1.25;
+
+	// Subtract error
+	*ph_volt = *ph_volt - calib_data;
 
 	return ret;
-}
-
-static int hydrokit_ec_disconnected_read(float *data)
-{
-	return hyper_extension_eeprom_read((uint8_t *)data, sizeof(float), 0x14, EEPROM_24AA02E48_I2C_ADDR);
 }
 
 static int hydrokit_read_ec(float *ec_gain)
@@ -91,13 +127,12 @@ static int hydrokit_read_ec(float *ec_gain)
 	}
 
 	LOG_INF("EC raw_value: %fV", ec_raw);
-
+	// Read calibration data stored in the eeprom
 	float ec_disconnected;
-
-	ret = hydrokit_ec_disconnected_read(&ec_disconnected);
+	ret = hydrokit_ec_calib_data_read(&ec_disconnected);
 	if (ret)
 	{
-		LOG_ERR("hydrokit_ec_disconnected_read() failed with exit code: %d\n", ret);
+		LOG_ERR("hydrokit_ec_calib_data_read() failed with exit code: %d\n", ret);
 		return ret;
 	}
 	LOG_INF("EC disconnected val: %f", ec_disconnected);
@@ -111,38 +146,64 @@ static int hydrokit_read_ec(float *ec_gain)
 static int hydrokit_read_orp(float *orp_volt)
 {
 	int ret = 0;
-	float orp_raw;
-	ret = mcp342x_average_oneshot_conversion_volt(&adc_orp_dev, &orp_raw, ADC_READINGS);
+	ret = mcp342x_average_oneshot_conversion_volt(&adc_orp_dev, orp_volt, ADC_READINGS);
 	if (ret)
 	{
 		LOG_ERR("mcp342x_average_oneshot_conversion_volt() for ORP failed with exit code: %d\n", ret);
 		return ret;
 	}
 
-	// Remove 1.250V of voltage reference
-	*orp_volt = orp_raw - 1.250;
+	// Read calibration data stored in the eeprom
+	float calib_data = 0;
+	ret = hydrokit_orp_calib_data_read(&calib_data);
+	if (ret)
+	{
+		LOG_ERR("hydrokit_orp_calib_data_read() failed with exit code: %d\n", ret);
+		return ret;
+	}
+	LOG_INF("hydrokit_orp_calib_data_read(): %fV", calib_data);
+
+	// Remove 1.25V of voltage reference
+	*orp_volt = *orp_volt - 1.25;
+
+	// Subtract error
+	*orp_volt = *orp_volt - calib_data;
 
 	return ret;
 }
 
+// TODO: rework all the RTD calculations, we are not doing it right
 static int hydrokit_read_temp(float *temp_c_deg)
 {
 	int ret = 0;
-	float raw_value;
-	ret = mcp342x_average_oneshot_conversion_volt(&adc_temp_dev, &raw_value, ADC_READINGS);
+	float rtd_volt;
+	ret = mcp342x_average_oneshot_conversion_volt(&adc_temp_dev, &rtd_volt, ADC_READINGS);
 	if (ret)
 	{
 		LOG_ERR("mcp342x_average_oneshot_conversion_volt() for ORP failed with exit code: %d\n", ret);
 		return ret;
 	}
 
-	LOG_INF("RTD RAW: %fV", raw_value);
+	LOG_INF("RTD RAW: %fV", rtd_volt);
+
+	// // Read calibration data stored in the eeprom
+	// float calib_data = 0;
+	// ret = hydrokit_rtd_calib_data_read(&calib_data);
+	// if (ret)
+	// {
+	// 	LOG_ERR("hydrokit_rtd_calib_data_read() failed with exit code: %d\n", ret);
+	// 	return ret;
+	// }
+	// LOG_INF("hydrokit_rtd_calib_data_read(): %fV", calib_data);
+	// // Subtract error
+	// rtd_volt = rtd_volt - calib_data;
+
 	// Vout = Vin*(Rptc/(Rptc+R1))  =>  Rptc = -(R1*Vout/(Vout-Vin))
 	// R1 = 1000
-	// Vin = 1.250
+	// Vin = 1.25
 	uint16_t R1 = 1000;
-	float Vin = 1.250;
-	float Rrtd = -(R1 * raw_value / (raw_value - Vin));
+	float Vin = 1.25;
+	float Rrtd = -(R1 * rtd_volt / (rtd_volt - Vin));
 	LOG_INF("RTD Vout: %fV", Rrtd);
 
 	// Rrtd to Temp (°C) from:

@@ -66,7 +66,7 @@ struct device *gpio_dev1;
 #endif
 
 #define OPT3001 DT_INST(0, ti_opt3001)
-#define VEML7700  DT_INST(0, vishay_veml7700)
+#define VEML7700 DT_INST(0, vishay_veml7700)
 
 #if DT_NODE_HAS_STATUS(OPT3001, okay)
 #define ALS_SENSOR_LABEL DT_LABEL(OPT3001)
@@ -130,7 +130,7 @@ static int axon_env_sensor_sample_fetch(void)
 		sensor_channel_get(env_sensors, SENSOR_CHAN_AMBIENT_TEMP, &temp);
 		sensor_channel_get(env_sensors, SENSOR_CHAN_HUMIDITY, &humidity);
 #ifdef ENVIRONMENT_SENSOR_HAS_PRESSURE
-	struct sensor_value press;
+		struct sensor_value press;
 		sensor_channel_get(env_sensors, SENSOR_CHAN_PRESS, &press);
 
 		LOG_INF("temp: %d.%06d; press: %d.%06d; humidity: %d.%06d;\n",
@@ -259,7 +259,15 @@ int hyper_extension_eui48_read(uint8_t *data)
 
 int hyper_extension_class_id_read(uint32_t *data)
 {
-	return hyper_extension_eeprom_read((uint8_t *)data, sizeof(uint32_t), 0x00, EEPROM_24AA02E48_I2C_ADDR);
+	return hyper_extension_eeprom_read((uint8_t *)data, sizeof(uint32_t), 0x00,
+									   EEPROM_24AA02E48_I2C_ADDR);
+}
+
+int hyper_extension_data_read(uint8_t *data, uint8_t len, uint8_t offset)
+{
+	return hyper_extension_eeprom_read(data, len,
+									   HYPER_EXTENSION_DATA_EEPROM_OFFSET + offset,
+									   EEPROM_24AA02E48_I2C_ADDR);
 }
 
 // checks if extension is connected by probing its EEPROM
@@ -340,7 +348,8 @@ uint16_t axon_publish_interval_get(void)
 void axon_publish_interval_timer_reset(void)
 {
 	k_timer_stop(&axon_publish_interval_timer);
-	k_timer_start(&axon_publish_interval_timer, K_SECONDS(axon_publish_interval), K_SECONDS(axon_publish_interval));
+	k_timer_start(&axon_publish_interval_timer, K_SECONDS(axon_publish_interval),
+				  K_SECONDS(axon_publish_interval));
 }
 
 static int axon_led_init()
