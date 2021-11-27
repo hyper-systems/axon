@@ -2,7 +2,13 @@
 class HyperExtensionEEPROM(object):
     """
     Class to represent Hyper Extension EEPROMs.
+
+    0x00-0x04: device_class_id
+    0x04-0x13: reserved
+    0x14-0xFF: extension data
     """
+
+    _EXTENSION_DATA_EEPROM_OFFSET = 0x14
     _EEPROM_24AA02E48_I2C_ADDR = 0x50
     
 
@@ -18,19 +24,20 @@ class HyperExtensionEEPROM(object):
     
 
     def eeprom_read(self, len, pointer):
-        buffer = bytearray(len) 
+        buffer = bytearray(len)
         # set memory pointer to 'pointer'
         self.i2c.writeto(self.i2c_eeprom_addr, bytes([pointer]))
-        #buffer = bytearray(buffer)
         self.i2c.readfrom_into(self.i2c_eeprom_addr+1, buffer)
 
         return buffer
 
 
     def eeprom_write(self, buffer, pointer):
-        if type(buffer) is int:
-            buffer = [buffer]
-        self.i2c.writeto(self.i2c_eeprom_addr, bytearray([pointer])+bytearray(buffer))
+        if type(buffer) is not bytearray:
+            raise TypeError("buffer must be bytearray")
+        for i in range(0, len(buffer)):
+            output = bytearray([pointer + i, buffer[i]])
+            self.i2c.writeto(self.i2c_eeprom_addr, output)
 
 
     def eeprom_get_eui48(self):
@@ -53,28 +60,16 @@ class HyperExtensionEEPROM(object):
 
         return hcidr
 
-    def extension_data_write(self, data):
-        # check if size is bigger than 230 bytes
-        try:
-            if len(data) > 230:
-                raise ValueError("extension data to be written can't be bigger than 230 bytes!")
-            else:
-                # write data from 0x14 offset,
-                # first 20 bytes are reserved for special Hyper data
-                self.eeprom_write(bytearray(data), 0x14)
-        except ValueError as e:
-            print(e)
-            exit(1)
+    def extension_data_write(self, buffer, offset):
+        if len(buffer) > 230:
+            raise ValueError("extension data to be written can't be bigger than 230 bytes!")
 
-    def extension_data_read(self, size):
-        # check if size is bigger than 230 bytes
-        try:
-            if size > 230:
-                raise ValueError("extension data to be read can't be bigger than 230 bytes!")
-            else:
-                # read data from 0x14 offset,
-                # first 20 bytes are reserved for special Hyper data
-                return self.eeprom_read(size, 0x14)
-        except ValueError as e:
-            print(e)
-            exit(1)
+        self.eeprom_write(buffer, self._EXTENSION_DATA_EEPROM_OFFSET + offset)
+
+    def extension_data_read(self, len, offset):
+        if len > 230:
+            raise ValueError("extension data to be read can't be bigger than 230 bytes!")
+
+        # read data from 0x14 offset,
+        # first 20 bytes are reserved for special Hyper data
+        return self.eeprom_read(len, self._EXTENSION_DATA_EEPROM_OFFSET + offset)
