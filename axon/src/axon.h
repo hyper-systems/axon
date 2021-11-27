@@ -7,6 +7,8 @@
 #define EEPROM_24AA02E48_I2C_ADDR 0x50
 #define HYPER_EXTENSION_MCU_I2C_ADDR 0x05
 
+#define HYPER_EXTENSION_DATA_EEPROM_OFFSET 0x14
+
 #define AXON_PUBLISH_INTERVAL_DEFAULT_SEC 30
 
 typedef enum
@@ -24,6 +26,7 @@ int hyper_extension_bus_init(void);
 int hyper_extension_eeprom_read(uint8_t *buff, uint8_t len, uint8_t pointer, uint16_t i2c_addr);
 int hyper_extension_eui48_read(uint8_t *data);
 int hyper_extension_class_id_read(uint32_t *data);
+int hyper_extension_data_read(uint8_t *data, uint8_t len, uint8_t offset);
 hyper_extension_type_t hyper_extension_get_type(void);
 
 int hyper_extension_bus_i2c_write(const uint8_t *buf, uint32_t num_bytes, uint16_t addr);
