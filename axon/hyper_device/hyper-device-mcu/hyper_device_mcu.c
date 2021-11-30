@@ -268,12 +268,12 @@ int hyper_device_mcu_init(hyper_device_reg_t *reg)
 	// extract device id from extension payload
 	extension_read_loop();
 	ret = hyper_msgpack_decode_device_id(device_id, hyper_extension.data, hyper_extension.data_size);
-    LOG_HEXDUMP_INF(device_id, 6, "hyper_msgpack_decode_device_id:");
-    if (ret)
-    {
-        LOG_ERR("hyper_msgpack_decode_device_id() failed with exit code: %d\n", ret);
-        return ret;
-    }
+	LOG_HEXDUMP_INF(device_id, 6, "hyper_msgpack_decode_device_id:");
+	if (ret)
+	{
+		LOG_ERR("hyper_msgpack_decode_device_id() failed with exit code: %d\n", ret);
+		return ret;
+	}
 
 	hyper_extensions_registry_insert(reg, device_id, hyper_device_mcu_get_data, hyper_device_mcu_set_data);
 

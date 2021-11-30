@@ -35,7 +35,7 @@ void main(void)
 		if (boot_write_img_confirmed())
 		{
 			LOG_ERR("Confirming firmware image failed, it will be reverted on the next "
-					"boot.");
+				"boot.");
 		}
 		else
 		{

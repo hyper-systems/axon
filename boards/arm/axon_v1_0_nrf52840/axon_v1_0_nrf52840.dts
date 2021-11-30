@@ -47,7 +47,7 @@
 };
 
 &gpiote {
-	 status = "okay";
+	status = "okay";
 };
 
 &gpio0 {
@@ -133,7 +133,7 @@
 		 * The flash starting at 0x000f8000 and ending at
 		 * 0x000fffff is reserved for use by the application.
 		 */
- 
+
 		/*
 		 * Storage partition will be used by FCB/LittleFS/NVS
 		 * if enabled.

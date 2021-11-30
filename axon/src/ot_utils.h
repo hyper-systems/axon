@@ -7,7 +7,7 @@
 /*
  * Copyright (c) 2020 Nordic Semiconductor ASA
  * Copyright (c) 2021 Hyper Collective LTD
- * 
+ *
  * SPDX-License-Identifier: LicenseRef-BSD-5-Clause-Nordic
  */
 #ifndef __OT_UTILS_H__

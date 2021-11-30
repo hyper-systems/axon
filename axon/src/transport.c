@@ -8,7 +8,6 @@
 
 LOG_MODULE_REGISTER(transport, CONFIG_MAIN_LOG_LEVEL);
 
-
 int transport_publish(uint8_t *data, uint8_t data_len)
 {
 	return transport_coap_client_post(data, data_len);

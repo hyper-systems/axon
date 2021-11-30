@@ -11,8 +11,6 @@ LOG_MODULE_REGISTER(adc_mcp342x);
 
 #include "mcp342x.h"
 
-
-
 #define BIT_RDY BIT(7)
 #define BIT_MODE BIT(4)
 
@@ -27,37 +25,37 @@ LOG_MODULE_REGISTER(adc_mcp342x);
 #define SIGN16 0xffff0000
 #define SIGN18 0xfffc0000
 
-#define CHECK(x)           \
-	do                     \
-	{                      \
+#define CHECK(x)                   \
+	do                         \
+	{                          \
 		int __;            \
 		if ((__ = x) != 0) \
-			return __;     \
+			return __; \
 	} while (0)
-#define CHECK_ARG(VAL) \
-	do                 \
-	{                  \
-		if (!(VAL))    \
+#define CHECK_ARG(VAL)             \
+	do                         \
+	{                          \
+		if (!(VAL))        \
 			return -1; \
 	} while (0)
 
 static const uint32_t sample_time[] = {
-	[MCP342X_RES_12] = 4167,
-	[MCP342X_RES_14] = 16667,
-	[MCP342X_RES_16] = 66667,
-	[MCP342X_RES_18] = 266667};
+    [MCP342X_RES_12] = 4167,
+    [MCP342X_RES_14] = 16667,
+    [MCP342X_RES_16] = 66667,
+    [MCP342X_RES_18] = 266667};
 
 static const float lsb[] = {
-	[MCP342X_RES_12] = 0.001,
-	[MCP342X_RES_14] = 0.00025,
-	[MCP342X_RES_16] = 0.0000625,
-	[MCP342X_RES_18] = 0.000015625};
+    [MCP342X_RES_12] = 0.001,
+    [MCP342X_RES_14] = 0.00025,
+    [MCP342X_RES_16] = 0.0000625,
+    [MCP342X_RES_18] = 0.000015625};
 
 static const int gain_val[] = {
-	[MCP342X_GAIN1] = 1,
-	[MCP342X_GAIN2] = 2,
-	[MCP342X_GAIN4] = 4,
-	[MCP342X_GAIN8] = 8};
+    [MCP342X_GAIN1] = 1,
+    [MCP342X_GAIN2] = 2,
+    [MCP342X_GAIN4] = 4,
+    [MCP342X_GAIN8] = 8};
 
 static void get_cfg(mcp342x_t *dev, uint8_t reg)
 {
@@ -234,7 +232,7 @@ int mcp342x_average_oneshot_conversion(mcp342x_t *dev, int32_t *data, int32_t nu
 	*data = 0;
 
 	int32_t readings[num_readings]; // the readings from the analog input
-	int32_t total = 0;				// the running total
+	int32_t total = 0;		// the running total
 	int ret = 0;
 
 	for (int i = 0; i < num_readings; i++)

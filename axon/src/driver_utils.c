@@ -69,5 +69,4 @@ bool hyper_i2c_device_is_present(struct device *i2c_dev, uint16_t i2c_addr)
 	{
 		return false;
 	}
-	
 }

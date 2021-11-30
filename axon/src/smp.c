@@ -42,21 +42,25 @@ static struct net_mgmt_event_callback mgmt_cb;
 static void event_handler(struct net_mgmt_event_callback *cb,
 			  uint32_t mgmt_event, struct net_if *iface)
 {
-	if ((mgmt_event & EVENT_MASK) != mgmt_event) {
+	if ((mgmt_event & EVENT_MASK) != mgmt_event)
+	{
 		return;
 	}
 
-	if (mgmt_event == NET_EVENT_L4_CONNECTED) {
+	if (mgmt_event == NET_EVENT_L4_CONNECTED)
+	{
 		LOG_INF("Network connected");
 
-		if (smp_udp_open() < 0) {
+		if (smp_udp_open() < 0)
+		{
 			LOG_ERR("could not open smp udp");
 		}
 
 		return;
 	}
 
-	if (mgmt_event == NET_EVENT_L4_DISCONNECTED) {
+	if (mgmt_event == NET_EVENT_L4_DISCONNECTED)
+	{
 		LOG_INF("Network disconnected");
 		smp_udp_close();
 		return;
@@ -84,17 +88,17 @@ STATS_NAME(smp_svr_stats, ticks)
 STATS_NAME_END(smp_svr_stats);
 
 /* Define an instance of the stats group. */
-STATS_SECT_DECL(smp_svr_stats) smp_svr_stats;
+STATS_SECT_DECL(smp_svr_stats)
+smp_svr_stats;
 #endif
 
 #ifdef CONFIG_MCUMGR_CMD_FS_MGMT
 FS_LITTLEFS_DECLARE_DEFAULT_CONFIG(cstorage);
 static struct fs_mount_t littlefs_mnt = {
-	.type = FS_LITTLEFS,
-	.fs_data = &cstorage,
-	.storage_dev = (void *)FLASH_AREA_ID(storage),
-	.mnt_point = "/lfs1"
-};
+    .type = FS_LITTLEFS,
+    .fs_data = &cstorage,
+    .storage_dev = (void *)FLASH_AREA_ID(storage),
+    .mnt_point = "/lfs1"};
 #endif
 
 #if defined(CONFIG_MCUMGR_CMD_IMG_MGMT)
@@ -116,7 +120,8 @@ void smp_loop(void)
 	int rc = STATS_INIT_AND_REG(smp_svr_stats, STATS_SIZE_32,
 				    "smp_svr_stats");
 
-	if (rc < 0) {
+	if (rc < 0)
+	{
 		LOG_ERR("Error initializing stats system [%d]", rc);
 	}
 #endif
@@ -124,7 +129,8 @@ void smp_loop(void)
 	/* Register the built-in mcumgr command handlers. */
 #ifdef CONFIG_MCUMGR_CMD_FS_MGMT
 	rc = fs_mount(&littlefs_mnt);
-	if (rc < 0) {
+	if (rc < 0)
+	{
 		LOG_ERR("Error mounting littlefs [%d]", rc);
 	}
 
@@ -155,7 +161,8 @@ void smp_loop(void)
 	 * main thread idle while the mcumgr server runs.
 	 */
 #ifdef CONFIG_MCUMGR_CMD_STAT_MGMT
-	while (1) {
+	while (1)
+	{
 		k_sleep(K_MSEC(1000));
 		STATS_INC(smp_svr_stats, ticks);
 	}

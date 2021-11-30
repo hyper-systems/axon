@@ -25,16 +25,16 @@ void (*on_response_data_handler)(uint8_t *data, uint8_t data_len) = NULL;
 
 /* Variable for storing server address acquiring in provisioning handshake */
 static struct sockaddr_in6 unique_local_addr = {
-	.sin6_family = AF_INET6,
-	.sin6_port = htons(COAP_SERVER_PORT),
-	.sin6_addr.s6_addr = {
-		0,
-	},
-	.sin6_scope_id = 0U};
+    .sin6_family = AF_INET6,
+    .sin6_port = htons(COAP_SERVER_PORT),
+    .sin6_addr.s6_addr = {
+	0,
+    },
+    .sin6_scope_id = 0U};
 
 static int coap_post_reply(const struct coap_packet *response,
-						   struct coap_reply *reply,
-						   const struct sockaddr *from)
+			   struct coap_reply *reply,
+			   const struct sockaddr *from)
 {
 	int ret = 0;
 	const uint8_t *data;
@@ -45,13 +45,13 @@ static int coap_post_reply(const struct coap_packet *response,
 	data = coap_packet_get_payload(response, &data_len);
 
 	inet_ntop(AF_INET6, &net_sin6(from)->sin6_addr, from_addr_str,
-			  INET6_ADDRSTRLEN);
+		  INET6_ADDRSTRLEN);
 
 	response_code = coap_header_get_code(response);
 	LOG_INF("Received CoAP response from address %s with code %u.%02d",
-			from_addr_str,
-			(0b11110000 & response_code) >> 5,
-			0b00001111 & response_code);
+		from_addr_str,
+		(0b11110000 & response_code) >> 5,
+		0b00001111 & response_code);
 
 	switch (response_code)
 	{
@@ -93,14 +93,14 @@ static int coap_client_post(uint8_t *data, uint8_t len)
 		LOG_WRN("Peer address not set.");
 		return -1;
 	}
-	LOG_INF("===== COAP sending hex =====");
+	LOG_INF("===== CoAP sending hex (size: %u) =====", len);
 	hyper_hexdump(data, len);
 	LOG_INF("Send 'hyper_data' request to: %s",
-			log_strdup(COAP_SERVER));
+		log_strdup(COAP_SERVER));
 
 	int ret = coap_send_request(COAP_METHOD_POST,
-								(const struct sockaddr *)&unique_local_addr,
-								coap_uri_path_options, data, len, coap_post_reply);
+				    (const struct sockaddr *)&unique_local_addr,
+				    coap_uri_path_options, data, len, coap_post_reply);
 
 	LOG_INF("coap_send_request return: %d", ret);
 	return ret;

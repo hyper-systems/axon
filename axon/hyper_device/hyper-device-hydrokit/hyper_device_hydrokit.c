@@ -21,25 +21,25 @@ const uint32_t hydrokit_class_ids[] = {9, 13};
 #define ADC_READINGS 120
 
 mcp342x_t adc_ph_dev = {
-	.channel = MCP342X_CHANNEL1,
-	.gain = MCP342X_GAIN1,
-	.resolution = MCP342X_RES_12,
-	.mode = MCP342X_ONESHOT};
-mcp342x_t adc_ec_dev = {
-	.channel = MCP342X_CHANNEL1,
-	.gain = MCP342X_GAIN2,
-	.resolution = MCP342X_RES_12,
-	.mode = MCP342X_ONESHOT};
+    .channel = MCP342X_CHANNEL1,
+    .gain = MCP342X_GAIN1,
+    .resolution = MCP342X_RES_12,
+    .mode = MCP342X_ONESHOT};
 mcp342x_t adc_orp_dev = {
-	.channel = MCP342X_CHANNEL1,
-	.gain = MCP342X_GAIN1,
-	.resolution = MCP342X_RES_12,
-	.mode = MCP342X_ONESHOT};
+    .channel = MCP342X_CHANNEL1,
+    .gain = MCP342X_GAIN1,
+    .resolution = MCP342X_RES_12,
+    .mode = MCP342X_ONESHOT};
+mcp342x_t adc_ec_dev = {
+    .channel = MCP342X_CHANNEL1,
+    .gain = MCP342X_GAIN2,
+    .resolution = MCP342X_RES_12,
+    .mode = MCP342X_ONESHOT};
 mcp342x_t adc_temp_dev = {
-	.channel = MCP342X_CHANNEL1,
-	.gain = MCP342X_GAIN1,
-	.resolution = MCP342X_RES_12,
-	.mode = MCP342X_ONESHOT};
+    .channel = MCP342X_CHANNEL1,
+    .gain = MCP342X_GAIN1,
+    .resolution = MCP342X_RES_12,
+    .mode = MCP342X_ONESHOT};
 
 static int adc_init(mcp342x_t *adc_dev, uint8_t i2c_addr)
 {
@@ -125,8 +125,8 @@ static int hydrokit_read_ec(float *ec_gain)
 		LOG_ERR("mcp342x_average_oneshot_conversion_volt() for EC failed with exit code: %d\n", ret);
 		return ret;
 	}
-
 	LOG_INF("EC raw_value: %fV", ec_raw);
+
 	// Read calibration data stored in the eeprom
 	float ec_disconnected;
 	ret = hydrokit_ec_calib_data_read(&ec_disconnected);
@@ -135,7 +135,7 @@ static int hydrokit_read_ec(float *ec_gain)
 		LOG_ERR("hydrokit_ec_calib_data_read() failed with exit code: %d\n", ret);
 		return ret;
 	}
-	LOG_INF("EC disconnected val: %f", ec_disconnected);
+	LOG_INF("EC disconnected val: %fV", ec_disconnected);
 
 	*ec_gain = ec_raw / ec_disconnected;
 	LOG_INF("EC gain val: %f", *ec_gain);
@@ -305,8 +305,8 @@ int hyper_device_hydrokit_init(hyper_device_reg_t *reg)
 
 	// init ADCs
 	adc_init(&adc_ph_dev, MCP342X_ADDR_MIN);
-	adc_init(&adc_ec_dev, MCP342X_ADDR_MIN + 1);
-	adc_init(&adc_orp_dev, MCP342X_ADDR_MIN + 2);
+	adc_init(&adc_orp_dev, MCP342X_ADDR_MIN + 1);
+	adc_init(&adc_ec_dev, MCP342X_ADDR_MIN + 2);
 	adc_init(&adc_temp_dev, MCP342X_ADDR_MIN + 3);
 
 	hyper_extensions_registry_insert(reg, extension_uid, hyper_device_hydrokit_get_data, NULL);

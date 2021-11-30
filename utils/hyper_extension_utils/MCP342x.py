@@ -11,11 +11,11 @@ class MCP342x(object):
     """
     Class to represent MCP342x ADC.
     """
-    _gain_mask            = 0b00000011
-    _resolution_mask      = 0b00001100
+    _gain_mask = 0b00000011
+    _resolution_mask = 0b00001100
     _continuous_mode_mask = 0b00010000
-    _channel_mask         = 0b01100000
-    _not_ready_mask       = 0b10000000
+    _channel_mask = 0b01100000
+    _not_ready_mask = 0b10000000
 
     _gain_to_config = {1: 0b00,
                        2: 0b01,
@@ -25,9 +25,9 @@ class MCP342x(object):
                              14: 0b0100,
                              16: 0b1000,
                              18: 0b1100}
-    _channel_to_config = {0: 0b0000000, 
-                          1: 0b0100000, 
-                          2: 0b1000000, 
+    _channel_to_config = {0: 0b0000000,
+                          1: 0b0100000,
+                          2: 0b1000000,
                           3: 0b1100000}
 
     _conversion_time = {12: 1.0/240,
@@ -80,9 +80,9 @@ class MCP342x(object):
         bus.writeto(address, bytearray([config]))
 
     @staticmethod
-    def convert_and_read_many(adcs, 
-                              samples=None, 
-                              aggregate=None, 
+    def convert_and_read_many(adcs,
+                              samples=None,
+                              aggregate=None,
                               raw=False):
         # Group the sampling into batches with different device
         # addresses (cannot simultaneously sample from different
@@ -122,7 +122,7 @@ class MCP342x(object):
                 unique_addresses[bus][a.get_address()] = None
                 # Remember highest numbered batch across all buses
                 num_batches = max(num_batches, len(batches[bus]))
-        
+
         if samples is not None:
             # Must avoid duplicating the same list when initializing!
             results = [[0] * samples for _ in range(len(adcs))]
@@ -169,18 +169,18 @@ class MCP342x(object):
                 results[pn] = aggregate(results[pn])
         return results
 
-    def __init__(self, 
-                 bus, 
-                 address, 
-                 device='MCP3424', 
-                 channel=0, 
-                 gain=1, 
-                 resolution=12, 
-                 continuous_mode=False, 
+    def __init__(self,
+                 bus,
+                 address,
+                 device='MCP3424',
+                 channel=0,
+                 gain=1,
+                 resolution=12,
+                 continuous_mode=False,
                  scale_factor=1.0,
                  offset=0.0):
 
-        if device not in ('MCP3422', 'MCP3423', 'MCP3424', 
+        if device not in ('MCP3422', 'MCP3423', 'MCP3424',
                           'MCP3426', 'MCP3427', 'MCP3428'):
             raise Exception('Unknown device: ' + str(device))
         self.bus = bus
@@ -197,7 +197,7 @@ class MCP342x(object):
 
     def __repr__(self):
         addr = hex(self.address)
-        return (type(self).__name__ + ': device=' + self.device 
+        return (type(self).__name__ + ': device=' + self.device
                 + ', address=' + addr)
 
     def get_bus(self):
@@ -248,7 +248,7 @@ class MCP342x(object):
                 self.device not in ('MCP3422', 'MCP3423', 'MCP3424'):
             raise Exception('18 bit sampling not suuported by ' +
                             self.device)
-            
+
         self.config &= (~MCP342x._resolution_mask & 0x7f)
         self.config |= MCP342x._resolution_to_config[resolution]
 
@@ -263,7 +263,7 @@ class MCP342x(object):
             raise Exception('Illegal channel')
         elif channel in (2, 3) and \
                 self.device not in ('MCP3424', 'MCP3428'):
-            raise Exception('Channel ' + str(channel) + 
+            raise Exception('Channel ' + str(channel) +
                             ' not supported by ' + self.device)
 
         self.config &= (~MCP342x._channel_mask & 0x7f)
@@ -279,7 +279,7 @@ class MCP342x(object):
         self.config = config & 0x7f
 
     def get_conversion_time(self):
-        return MCP342x._conversion_time[self.get_resolution()] 
+        return MCP342x._conversion_time[self.get_resolution()]
 
     def configure(self):
         """Configure the device.
@@ -313,13 +313,13 @@ class MCP342x(object):
             # in the object. This can't be done since we have to
             # destroy the actual value before reading.
             self.bus.writeto_then_readfrom(self.address,
-                                                bytearray([self.config]),
-                                                bytes_to_read
-                                             )
+                                           bytearray([self.config]),
+                                           bytes_to_read
+                                           )
             config_used = bytes_to_read[-1]
             if config_used & MCP342x._not_ready_mask == 0:
                 count = 0
-                # DEBUG: 
+                # DEBUG:
                 # print([hex(x) for x in bytes_to_read])
                 for i in range(len(bytes_to_read) - 1):
                     count <<= 8
@@ -331,9 +331,9 @@ class MCP342x(object):
                 count &= count_mask
                 if sign_bit:
                     count = -(~count & count_mask) - 1
-                
+
                 return count, config_used
-                    
+
     def read(self, scale_factor=None, offset=None, raw=False):
         if scale_factor is None:
             scale_factor = self.scale_factor
@@ -346,9 +346,9 @@ class MCP342x(object):
         # very useful.
         if config_used != self.config:
             raise Exception('Config does not match ('
-                            + MCP342x.config_to_str(config_used) + ' != ' 
+                            + MCP342x.config_to_str(config_used) + ' != '
                             + MCP342x.config_to_str(self.config))
-        
+
         if raw:
             return count
         lsb = MCP342x.config_to_lsb(config_used)
@@ -356,11 +356,12 @@ class MCP342x(object):
         # difference between IN+ and IN-. Other scale_factors can be
         # used to account for gain or attenuation, or to convert
         # voltage to some sensor input value.
-        voltage = (count * lsb * scale_factor / MCP342x.config_to_gain(config_used)) + offset
+        voltage = (count * lsb * scale_factor /
+                   MCP342x.config_to_gain(config_used)) + offset
         return numpy.float32(voltage)
 
-    def convert_and_read(self, 
-                         sleep=True, 
+    def convert_and_read(self,
+                         sleep=True,
                          samples=None,
                          aggregate=None,
                          **kwargs):

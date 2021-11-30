@@ -3,7 +3,6 @@
 
 LOG_MODULE_REGISTER(hyper_device_utils, CONFIG_MAIN_LOG_LEVEL);
 
-
 void hyper_extensions_registry_insert(hyper_device_reg_t *reg, uint8_t *device_id,
                                       hyper_result_t (*get_data)(uint8_t *data, uint8_t *data_len),
                                       hyper_result_t (*set_data)(uint8_t *data, uint8_t data_len))

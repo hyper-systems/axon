@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2020 Nordic Semiconductor ASA
  * Copyright (c) 2021 Hyper Collective LTD
- * 
+ *
  * SPDX-License-Identifier: LicenseRef-BSD-5-Clause-Nordic
  */
 #include <zephyr.h>
@@ -45,7 +45,7 @@ static void on_ot_connect(struct k_work *item)
 static void on_ot_disconnect(struct k_work *item)
 {
 	ARG_UNUSED(item);
-	axon_led_set_blink(30,130);
+	axon_led_set_blink(30, 130);
 }
 
 /** @brief Function called when the MTD modes are toggled.
@@ -199,7 +199,7 @@ int ot_utils_init(void)
 	if (IS_ENABLED(CONFIG_OPENTHREAD_MTD_SED))
 	{
 		k_work_init(&toggle_MTD_SED_work,
-					toggle_minimal_sleepy_end_device);
+			    toggle_minimal_sleepy_end_device);
 		k_work_submit(&toggle_MTD_SED_work);
 	}
 
@@ -211,8 +211,8 @@ int ot_utils_init(void)
 
 	// TODO: add prefix as a KConfig symbol
 	sprintf(manual_ip, "fdaa:bb:1::%02x%02x:%02x%02x:%02x%02x",
-			macaddr[0], macaddr[1], macaddr[2], macaddr[3],
-			macaddr[4], macaddr[5]);
+		macaddr[0], macaddr[1], macaddr[2], macaddr[3],
+		macaddr[4], macaddr[5]);
 
 	LOG_INF("Adding manual ip: %s", manual_ip);
 
@@ -234,7 +234,7 @@ void ot_utils_toggle_minimal_sleepy_end_device(void)
 	if (IS_ENABLED(CONFIG_OPENTHREAD_MTD_SED))
 	{
 		k_work_init(&toggle_MTD_SED_work,
-					toggle_minimal_sleepy_end_device);
+			    toggle_minimal_sleepy_end_device);
 		update_device_state();
 	}
 }
