@@ -93,7 +93,7 @@ static int coap_client_post(uint8_t *data, uint8_t len)
 		LOG_WRN("Peer address not set.");
 		return -1;
 	}
-	LOG_INF("===== COAP sending hex =====");
+	LOG_INF("===== CoAP sending hex (size: %u) =====", len);
 	hyper_hexdump(data, len);
 	LOG_INF("Send 'hyper_data' request to: %s",
 		log_strdup(COAP_SERVER));
