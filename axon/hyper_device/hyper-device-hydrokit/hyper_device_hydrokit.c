@@ -21,25 +21,25 @@ const uint32_t hydrokit_class_ids[] = {9, 13};
 #define ADC_READINGS 120
 
 mcp342x_t adc_ph_dev = {
-	.channel = MCP342X_CHANNEL1,
-	.gain = MCP342X_GAIN1,
-	.resolution = MCP342X_RES_12,
-	.mode = MCP342X_ONESHOT};
+    .channel = MCP342X_CHANNEL1,
+    .gain = MCP342X_GAIN1,
+    .resolution = MCP342X_RES_12,
+    .mode = MCP342X_ONESHOT};
 mcp342x_t adc_ec_dev = {
-	.channel = MCP342X_CHANNEL1,
-	.gain = MCP342X_GAIN2,
-	.resolution = MCP342X_RES_12,
-	.mode = MCP342X_ONESHOT};
+    .channel = MCP342X_CHANNEL1,
+    .gain = MCP342X_GAIN2,
+    .resolution = MCP342X_RES_12,
+    .mode = MCP342X_ONESHOT};
 mcp342x_t adc_orp_dev = {
-	.channel = MCP342X_CHANNEL1,
-	.gain = MCP342X_GAIN1,
-	.resolution = MCP342X_RES_12,
-	.mode = MCP342X_ONESHOT};
+    .channel = MCP342X_CHANNEL1,
+    .gain = MCP342X_GAIN1,
+    .resolution = MCP342X_RES_12,
+    .mode = MCP342X_ONESHOT};
 mcp342x_t adc_temp_dev = {
-	.channel = MCP342X_CHANNEL1,
-	.gain = MCP342X_GAIN1,
-	.resolution = MCP342X_RES_12,
-	.mode = MCP342X_ONESHOT};
+    .channel = MCP342X_CHANNEL1,
+    .gain = MCP342X_GAIN1,
+    .resolution = MCP342X_RES_12,
+    .mode = MCP342X_ONESHOT};
 
 static int adc_init(mcp342x_t *adc_dev, uint8_t i2c_addr)
 {

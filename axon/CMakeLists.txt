@@ -10,11 +10,10 @@ set(BOARD_ROOT ${PROJECT_ROOT_DIR}/)
 
 # add extenal libs modules
 set(ZEPHYR_EXTRA_MODULES
-   # add Hyper Drivers module
-   ${PROJECT_ROOT_DIR}/drivers
-   # add external libs module
-   ${PROJECT_ROOT_DIR}/lib
-)
+    # add Hyper Drivers module
+    ${PROJECT_ROOT_DIR}/drivers
+    # add external libs module
+    ${PROJECT_ROOT_DIR}/lib)
 
 # Find Zephyr. This also loads Zephyr's build system.
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
@@ -28,9 +27,8 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/hyper_device)
 
 # add HYPER_FIRMWARE_VER macro
 execute_process(
-   COMMAND ${PROJECT_ROOT_DIR}/utils/get_commit_hash.sh
-   WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-   OUTPUT_VARIABLE GIT_HASH
-   OUTPUT_STRIP_TRAILING_WHITESPACE
-   )
+  COMMAND ${PROJECT_ROOT_DIR}/utils/get_commit_hash.sh
+  WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+  OUTPUT_VARIABLE GIT_HASH
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
 target_compile_definitions(app PRIVATE -DHYPER_FIRMWARE_VER="${GIT_HASH}")

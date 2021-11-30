@@ -134,24 +134,24 @@ static int axon_env_sensor_sample_fetch(void)
 		sensor_channel_get(env_sensors, SENSOR_CHAN_PRESS, &press);
 
 		LOG_INF("temp: %d.%06d; press: %d.%06d; humidity: %d.%06d;\n",
-				temp.val1, temp.val2, press.val1, press.val2,
-				humidity.val1, humidity.val2);
+			temp.val1, temp.val2, press.val1, press.val2,
+			humidity.val1, humidity.val2);
 
 		environment_sensor_vals.temp = temp.val1 + ((float)temp.val2 / 1000000);
 		environment_sensor_vals.press = press.val1 + ((float)press.val2 / 1000000);
 		environment_sensor_vals.humid = humidity.val1 + ((float)humidity.val2 / 1000000);
 
 		printk("temp: %f; press: %f; humidity: %f;\n",
-			   environment_sensor_vals.temp, environment_sensor_vals.press, environment_sensor_vals.humid);
+		       environment_sensor_vals.temp, environment_sensor_vals.press, environment_sensor_vals.humid);
 #else
 		LOG_INF("temp: %d.%06d; humidity: %d.%06d;\n",
-				temp.val1, temp.val2, humidity.val1, humidity.val2);
+			temp.val1, temp.val2, humidity.val1, humidity.val2);
 
 		environment_sensor_vals.temp = temp.val1 + ((float)temp.val2 / 1000000);
 		environment_sensor_vals.humid = humidity.val1 + ((float)humidity.val2 / 1000000);
 
 		printk("temp: %f; humidity: %f;\n",
-			   environment_sensor_vals.temp, environment_sensor_vals.humid);
+		       environment_sensor_vals.temp, environment_sensor_vals.humid);
 #endif
 
 		return 0;
@@ -414,8 +414,8 @@ int axon_led_set_off()
 #ifndef CONFIG_BOARD_AXON_V0_2_NRF52840
 __unused
 #endif
-	static int
-	axon_gpio_write(const struct device *gpio_dev, gpio_pin_t gpio_pin, uint8_t value)
+    static int
+    axon_gpio_write(const struct device *gpio_dev, gpio_pin_t gpio_pin, uint8_t value)
 {
 	int err = gpio_pin_set_raw(gpio_dev, gpio_pin, value);
 	if (err)

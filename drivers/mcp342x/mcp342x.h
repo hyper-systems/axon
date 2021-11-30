@@ -5,55 +5,59 @@
 #define MCP342X_ADDR_MIN 0x68
 #define MCP342X_ADDR_MAX 0x6f
 
-
 /**
  * Device operation mode
  */
-typedef enum {
-    MCP342X_ONESHOT = 0, //!< One-shot conversion mode
-    MCP342X_CONTINUOUS   //!< Continuous conversions mode, default
+typedef enum
+{
+	MCP342X_ONESHOT = 0, //!< One-shot conversion mode
+	MCP342X_CONTINUOUS   //!< Continuous conversions mode, default
 } mcp342x_mode_t;
 
 /**
  * Input channel
  */
-typedef enum {
-    MCP342X_CHANNEL1 = 0, //!< Channel 1, default
-    MCP342X_CHANNEL2,     //!< Channel 2
-    MCP342X_CHANNEL3,     //!< Channel 3 (MCP3428 only, treated as channel 1 by the MCP3426/MCP3427)
-    MCP342X_CHANNEL4      //!< Channel 4 (MCP3428 only, treated as channel 2 by the MCP3426/MCP3427)
+typedef enum
+{
+	MCP342X_CHANNEL1 = 0, //!< Channel 1, default
+	MCP342X_CHANNEL2,     //!< Channel 2
+	MCP342X_CHANNEL3,     //!< Channel 3 (MCP3428 only, treated as channel 1 by the MCP3426/MCP3427)
+	MCP342X_CHANNEL4      //!< Channel 4 (MCP3428 only, treated as channel 2 by the MCP3426/MCP3427)
 } mcp342x_channel_t;
 
 /**
  * Resolution
  */
-typedef enum {
-    MCP342X_RES_12 = 0, //!< 12 bits, 240 samples per second
-    MCP342X_RES_14,     //!< 14 bits, 60 samples per second
-    MCP342X_RES_16,     //!< 16 bits, 15 samples per second
-    MCP342X_RES_18      //!< 18 bits, 3.75 samples per second
+typedef enum
+{
+	MCP342X_RES_12 = 0, //!< 12 bits, 240 samples per second
+	MCP342X_RES_14,	    //!< 14 bits, 60 samples per second
+	MCP342X_RES_16,	    //!< 16 bits, 15 samples per second
+	MCP342X_RES_18	    //!< 18 bits, 3.75 samples per second
 } mcp342x_resolution_t;
 
 /**
  * PGA gain
  */
-typedef enum {
-    MCP342X_GAIN1 = 0,//!< x1, default
-    MCP342X_GAIN2,    //!< x2
-    MCP342X_GAIN4,    //!< x4
-    MCP342X_GAIN8     //!< x8
+typedef enum
+{
+	MCP342X_GAIN1 = 0, //!< x1, default
+	MCP342X_GAIN2,	   //!< x2
+	MCP342X_GAIN4,	   //!< x4
+	MCP342X_GAIN8	   //!< x8
 } mcp342x_gain_t;
 
 /**
  * Device descriptor
  */
-typedef struct {
-    const struct device *i2c_dev;
-    uint8_t i2c_addr;
-    mcp342x_mode_t mode;             //!< Operational mode
-    mcp342x_channel_t channel;       //!< Input channel
-    mcp342x_resolution_t resolution; //!< Resolution
-    mcp342x_gain_t gain;             //!< PGA gain
+typedef struct
+{
+	const struct device *i2c_dev;
+	uint8_t i2c_addr;
+	mcp342x_mode_t mode;		 //!< Operational mode
+	mcp342x_channel_t channel;	 //!< Input channel
+	mcp342x_resolution_t resolution; //!< Resolution
+	mcp342x_gain_t gain;		 //!< PGA gain
 } mcp342x_t;
 
 /**
