@@ -34,7 +34,7 @@ mcp342x_t adc_orp_dev = {
 
 mcp342x_t adc_ec_dev = {
     .channel = MCP342X_CHANNEL1,
-    .gain = MCP342X_GAIN2,
+    .gain = MCP342X_GAIN1,
     .resolution = MCP342X_RES_12,
     .mode = MCP342X_ONESHOT,
     .i2c_addr = 0x6A};
