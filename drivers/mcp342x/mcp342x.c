@@ -63,6 +63,18 @@ LOG_MODULE_REGISTER(adc_mcp342x);
 			return -1; \
 	} while (0)
 
+static const int32_t underflow_val[] = {
+    [MCP342X_RES_12] = -2048,
+    [MCP342X_RES_14] = -8192,
+    [MCP342X_RES_16] = -32768,
+    [MCP342X_RES_18] = -131072};
+
+static const int32_t overflow_val[] = {
+    [MCP342X_RES_12] = 2047,
+    [MCP342X_RES_14] = 8191,
+    [MCP342X_RES_16] = 32767,
+    [MCP342X_RES_18] = 131071};
+
 static const uint32_t sample_time[] = {
     [MCP342X_RES_12] = 4167,
     [MCP342X_RES_14] = 16667,
@@ -102,12 +114,12 @@ int mcp342x_init_desc(mcp342x_t *dev, const char *i2c_dev_label)
 	if (dev->i2c_dev == NULL)
 	{
 		LOG_ERR("No device \"%s\" found; did initialization fail?", i2c_dev_label);
-		return 1;
+		return MCP342X_I2C_ERROR;
 	}
 
 	// TODO: check if device is available by reading from it
 
-	return 0;
+	return MCP342X_OK;
 }
 
 int mcp342x_get_data(mcp342x_t *dev, int32_t *data, bool *ready)
@@ -120,7 +132,7 @@ int mcp342x_get_data(mcp342x_t *dev, int32_t *data, bool *ready)
 	if (ret)
 	{
 		LOG_ERR("i2c_read err (mcp342x_get_data): %d", ret);
-		return -1;
+		return MCP342X_I2C_ERROR;
 	}
 
 	uint8_t reg = buf[(buf[3] & (MCP342X_RES_18 << POS_SR)) == (MCP342X_RES_18 << POS_SR) ? 3 : 2];
@@ -129,7 +141,7 @@ int mcp342x_get_data(mcp342x_t *dev, int32_t *data, bool *ready)
 		*ready = !(reg & BIT_RDY);
 
 	if (!data)
-		return 0;
+		return MCP342X_OK;
 
 	uint32_t r = 0;
 	switch (dev->resolution)
@@ -158,7 +170,7 @@ int mcp342x_get_data(mcp342x_t *dev, int32_t *data, bool *ready)
 
 	*data = *((int32_t *)&r);
 
-	return 0;
+	return MCP342X_OK;
 }
 
 int mcp342x_get_voltage(mcp342x_t *dev, float *volts, bool *ready)
@@ -169,7 +181,7 @@ int mcp342x_get_voltage(mcp342x_t *dev, float *volts, bool *ready)
 	CHECK(mcp342x_get_data(dev, &raw, ready));
 	*volts = lsb[dev->resolution] * raw / gain_val[dev->gain];
 
-	return 0;
+	return MCP342X_OK;
 }
 
 float mcp342x_raw_to_voltage(mcp342x_t *dev, int32_t raw)
@@ -182,7 +194,7 @@ int mcp342x_get_sample_time_us(mcp342x_t *dev, uint32_t *us)
 	CHECK_ARG(dev && us && dev->resolution <= MCP342X_RES_18);
 
 	*us = sample_time[dev->resolution];
-	return 0;
+	return MCP342X_OK;
 }
 
 int mcp342x_set_config(mcp342x_t *dev)
@@ -195,10 +207,10 @@ int mcp342x_set_config(mcp342x_t *dev)
 	if (ret)
 	{
 		LOG_ERR("i2c_write err (mcp342x_set_config): %d", ret);
-		return -1;
+		return MCP342X_I2C_ERROR;
 	}
 
-	return 0;
+	return MCP342X_OK;
 }
 
 int mcp342x_get_config(mcp342x_t *dev)
@@ -216,10 +228,10 @@ int mcp342x_start_conversion(mcp342x_t *dev)
 	if (ret)
 	{
 		LOG_ERR("i2c_write err (mcp342x_start_conversion): %d", ret);
-		return -1;
+		return MCP342X_I2C_ERROR;
 	}
 
-	return 0;
+	return MCP342X_OK;
 }
 
 int mcp342x_oneshot_conversion(mcp342x_t *dev, int32_t *data)
@@ -239,10 +251,21 @@ int mcp342x_oneshot_conversion(mcp342x_t *dev, int32_t *data)
 	if (!ready)
 	{
 		LOG_ERR("Data not ready");
-		return -1;
+		return MCP342X_TIMEOUT;
 	}
 
-	return 0;
+	if (*data <= underflow_val[dev->resolution])
+	{
+		LOG_ERR("ADC underflow: %d", *data);
+		return MCP342X_UNDERFLOW;
+	}
+	else if (*data >= overflow_val[dev->resolution])
+	{
+		LOG_ERR("ADC overflow: %d", *data);
+		return MCP342X_OVERFLOW;
+	}
+
+	return MCP342X_OK;
 }
 
 int mcp342x_average_oneshot_conversion(mcp342x_t *dev, int32_t *data, int32_t num_readings)
@@ -284,13 +307,12 @@ int mcp342x_average_oneshot_conversion_volt(mcp342x_t *dev, float *adc_volt, int
 	if (ret)
 	{
 		LOG_ERR("mcp342x_average_oneshot_conversion err: %d", ret);
-		return -1;
-	}
-	else
-	{
-		LOG_INF("mcp342x_oneshot_conversion: %d", adc_raw_data);
-		*adc_volt = mcp342x_raw_to_voltage(dev, adc_raw_data);
-		LOG_INF("mcp342x_oneshot_conversion (Volts): %f", *adc_volt);
 		return ret;
 	}
+
+	LOG_INF("mcp342x_average_oneshot_conversion: %d", adc_raw_data);
+	*adc_volt = mcp342x_raw_to_voltage(dev, adc_raw_data);
+	LOG_INF("mcp342x_raw_to_voltage (Volts): %f", *adc_volt);
+
+	return ret;
 }

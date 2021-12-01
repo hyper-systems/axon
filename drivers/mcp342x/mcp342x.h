@@ -76,6 +76,18 @@ typedef enum
 } mcp342x_gain_t;
 
 /**
+ * PGA gain
+ */
+typedef enum
+{
+	MCP342X_OK = 0,
+	MCP342X_UNDERFLOW,
+	MCP342X_OVERFLOW,
+	MCP342X_I2C_ERROR,
+	MCP342X_TIMEOUT
+} mcp342x_result_t;
+
+/**
  * Device descriptor
  */
 typedef struct
