@@ -70,21 +70,15 @@ static inline uint8_t get_reg(mcp342x_t *dev)
 	return (dev->mode == MCP342X_CONTINUOUS ? BIT_MODE : 0) | ((dev->channel & MASK_VAL) << POS_CHAN) | ((dev->resolution & MASK_VAL) << POS_SR) | ((dev->gain & MASK_VAL) << POS_GAIN);
 }
 
-int mcp342x_init_desc(mcp342x_t *dev, const char *label, uint8_t addr)
+int mcp342x_init_desc(mcp342x_t *dev, const char *i2c_dev_label)
 {
-	CHECK_ARG(dev && addr >= MCP342X_ADDR_MIN && addr <= MCP342X_ADDR_MAX);
-	dev->i2c_dev = device_get_binding(label);
-	dev->i2c_addr = addr;
+	CHECK_ARG(dev && dev->i2c_addr >= MCP342X_ADDR_MIN && dev->i2c_addr <= MCP342X_ADDR_MAX);
+	dev->i2c_dev = device_get_binding(i2c_dev_label);
 
 	if (dev->i2c_dev == NULL)
 	{
-		LOG_ERR("No device \"%s\" found; did initialization fail?", label);
+		LOG_ERR("No device \"%s\" found; did initialization fail?", i2c_dev_label);
 		return 1;
-	}
-	else
-	{
-		LOG_INF("Found device \"%s\"", label);
-		return 0;
 	}
 
 	// TODO: check if device is available by reading from it

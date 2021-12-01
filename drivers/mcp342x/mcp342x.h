@@ -64,13 +64,10 @@ typedef struct
  * @brief Initialize device descriptor
  *
  * @param dev Device descriptor
- * @param port I2C port
- * @param addr Device address
- * @param sda_gpio SDA GPIO pin
- * @param scl_gpio SCL GPIO pin
+ * @param i2c_dev_label I2C Device label
  * @return `0` on success
  */
-int mcp342x_init_desc(mcp342x_t *dev, const char *label, uint8_t addr);
+int mcp342x_init_desc(mcp342x_t *dev, const char *i2c_dev_label);
 
 /**
  * @brief Free device descriptor
