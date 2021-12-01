@@ -16,36 +16,41 @@ const uint32_t hydrokit_class_ids[] = {9, 13};
 #define HYPER_EXTENSION_DATA_EC_OFFSET 0x00
 #define HYPER_EXTENSION_DATA_RTD_OFFSET 0x0c
 
-#define ADC_GAIN MCP342X_GAIN1
-#define ADC_RESOLUTION MCP342X_RES_12
 #define ADC_READINGS 120
 
 mcp342x_t adc_ph_dev = {
     .channel = MCP342X_CHANNEL1,
     .gain = MCP342X_GAIN1,
     .resolution = MCP342X_RES_12,
-    .mode = MCP342X_ONESHOT};
+    .mode = MCP342X_ONESHOT,
+    .i2c_addr = 0x68};
+
 mcp342x_t adc_orp_dev = {
     .channel = MCP342X_CHANNEL1,
     .gain = MCP342X_GAIN1,
     .resolution = MCP342X_RES_12,
-    .mode = MCP342X_ONESHOT};
+    .mode = MCP342X_ONESHOT,
+    .i2c_addr = 0x69};
+
 mcp342x_t adc_ec_dev = {
     .channel = MCP342X_CHANNEL1,
     .gain = MCP342X_GAIN2,
     .resolution = MCP342X_RES_12,
-    .mode = MCP342X_ONESHOT};
-mcp342x_t adc_temp_dev = {
+    .mode = MCP342X_ONESHOT,
+    .i2c_addr = 0x6A};
+
+mcp342x_t adc_rtd_dev = {
     .channel = MCP342X_CHANNEL1,
     .gain = MCP342X_GAIN1,
     .resolution = MCP342X_RES_12,
-    .mode = MCP342X_ONESHOT};
+    .mode = MCP342X_ONESHOT,
+    .i2c_addr = 0x6B};
 
-static int adc_init(mcp342x_t *adc_dev, uint8_t i2c_addr)
+static int adc_init(mcp342x_t *adc_dev)
 {
 	int ret = 0;
 
-	ret = mcp342x_init_desc(adc_dev, "I2C_1", i2c_addr);
+	ret = mcp342x_init_desc(adc_dev, "I2C_1");
 
 	if (ret)
 	{
@@ -173,11 +178,11 @@ static int hydrokit_read_orp(float *orp_volt)
 }
 
 // TODO: rework all the RTD calculations, we are not doing it right
-static int hydrokit_read_temp(float *temp_c_deg)
+static int hydrokit_read_temp(float *rtd_c_deg)
 {
 	int ret = 0;
 	float rtd_volt;
-	ret = mcp342x_average_oneshot_conversion_volt(&adc_temp_dev, &rtd_volt, ADC_READINGS);
+	ret = mcp342x_average_oneshot_conversion_volt(&adc_rtd_dev, &rtd_volt, ADC_READINGS);
 	if (ret)
 	{
 		LOG_ERR("mcp342x_average_oneshot_conversion_volt() for ORP failed with exit code: %d\n", ret);
@@ -208,15 +213,15 @@ static int hydrokit_read_temp(float *temp_c_deg)
 
 	// Rrtd to Temp (°C) from:
 	// https://github.com/resol-de/RESOLino_Pt1000/blob/21dc220e7176b5ef59a1056476c4b8ede3f6fd41/RESOLino_Pt1000/RESOLino_Pt1000.cpp#L107
-	*temp_c_deg = (3383.81f - 1315.9f * sqrt(7.61247f - Rrtd / 1000));
-	LOG_INF("RTD Temp: %f °C", *temp_c_deg);
+	*rtd_c_deg = (3383.81f - 1315.9f * sqrt(7.61247f - Rrtd / 1000));
+	LOG_INF("RTD Temp: %f °C", *rtd_c_deg);
 
 	return ret;
 }
 
 static hyper_result_t hyper_device_hydrokit_get_data(uint8_t *data, uint8_t *data_len)
 {
-	float ph_volt, ec_gain, orp_volt, temp_c_deg;
+	float ph_volt, ec_gain, orp_volt, rtd_c_deg;
 	int ret = 0;
 
 	ret = hydrokit_read_ph(&ph_volt);
@@ -249,14 +254,14 @@ static hyper_result_t hyper_device_hydrokit_get_data(uint8_t *data, uint8_t *dat
 		hyper_device_13_set_raw_orp_adc_value(&hyper_device_13, orp_volt);
 	}
 
-	ret = hydrokit_read_temp(&temp_c_deg);
+	ret = hydrokit_read_temp(&rtd_c_deg);
 	if (ret)
 	{
 		LOG_ERR("hydrokit_read_temp() for Temperature failed with exit code: %d\n", ret);
 	}
 	else
 	{
-		hyper_device_13_set_water_temperature(&hyper_device_13, temp_c_deg);
+		hyper_device_13_set_water_temperature(&hyper_device_13, rtd_c_deg);
 	}
 
 	// Pretty-print device.
@@ -304,10 +309,30 @@ int hyper_device_hydrokit_init(hyper_device_reg_t *reg)
 	hyper_device_13_init(&hyper_device_13, extension_uid);
 
 	// init ADCs
-	adc_init(&adc_ph_dev, MCP342X_ADDR_MIN);
-	adc_init(&adc_orp_dev, MCP342X_ADDR_MIN + 1);
-	adc_init(&adc_ec_dev, MCP342X_ADDR_MIN + 2);
-	adc_init(&adc_temp_dev, MCP342X_ADDR_MIN + 3);
+	ret = adc_init(&adc_ph_dev);
+	if (ret)
+	{
+		LOG_ERR("adc_ph_dev init err: %d", ret);
+		return ret;
+	}
+	ret = adc_init(&adc_orp_dev);
+	if (ret)
+	{
+		LOG_ERR("adc_orp_dev init err: %d", ret);
+		return ret;
+	}
+	ret = adc_init(&adc_ec_dev);
+	if (ret)
+	{
+		LOG_ERR("adc_ec_dev init err: %d", ret);
+		return ret;
+	}
+	ret = adc_init(&adc_rtd_dev);
+	if (ret)
+	{
+		LOG_ERR("adc_rtd_dev init err: %d", ret);
+		return ret;
+	}
 
 	hyper_extensions_registry_insert(reg, extension_uid, hyper_device_hydrokit_get_data, NULL);
 
