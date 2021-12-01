@@ -67,6 +67,29 @@ static int adc_init(mcp342x_t *adc_dev)
 	return ret;
 }
 
+static int adc_volt_read(mcp342x_t *adc_dev, float *data)
+{
+	int ret = mcp342x_average_oneshot_conversion_volt(adc_dev, data, ADC_READINGS);
+	if (ret)
+	{
+		if (ret == MCP342X_UNDERFLOW)
+		{
+			*data = -INFINITY;
+			return 0;
+		}
+		if (ret == MCP342X_OVERFLOW)
+		{
+			*data = INFINITY;
+			return 0;
+		}
+
+		LOG_ERR("mcp342x_average_oneshot_conversion_volt() for EC failed with exit code: %d\n", ret);
+		return ret;
+	}
+
+	return ret;
+}
+
 static int hydrokit_ph_calib_data_read(float *data)
 {
 	return hyper_extension_data_read((uint8_t *)data,
@@ -94,10 +117,10 @@ __unused static int hydrokit_rtd_calib_data_read(float *data)
 static int hydrokit_read_ph(float *ph_volt)
 {
 	int ret = 0;
-	ret = mcp342x_average_oneshot_conversion_volt(&adc_ph_dev, ph_volt, ADC_READINGS);
+	ret = adc_volt_read(&adc_ph_dev, ph_volt);
 	if (ret)
 	{
-		LOG_ERR("mcp342x_average_oneshot_conversion_volt() for pH failed with exit code: %d\n", ret);
+		LOG_ERR("adc_volt_read() for pH failed with exit code: %d\n", ret);
 		return ret;
 	}
 	// Read calibration data stored in the eeprom
@@ -124,12 +147,13 @@ static int hydrokit_read_ec(float *ec_gain)
 	int ret = 0;
 	float ec_raw;
 
-	ret = mcp342x_average_oneshot_conversion_volt(&adc_ec_dev, &ec_raw, ADC_READINGS);
+	ret = adc_volt_read(&adc_ec_dev, &ec_raw);
 	if (ret)
 	{
-		LOG_ERR("mcp342x_average_oneshot_conversion_volt() for EC failed with exit code: %d\n", ret);
+		LOG_ERR("adc_volt_read() for EC failed with exit code: %d\n", ret);
 		return ret;
 	}
+
 	LOG_INF("EC raw_value: %fV", ec_raw);
 
 	// Read calibration data stored in the eeprom
@@ -151,10 +175,10 @@ static int hydrokit_read_ec(float *ec_gain)
 static int hydrokit_read_orp(float *orp_volt)
 {
 	int ret = 0;
-	ret = mcp342x_average_oneshot_conversion_volt(&adc_orp_dev, orp_volt, ADC_READINGS);
+	ret = adc_volt_read(&adc_orp_dev, orp_volt);
 	if (ret)
 	{
-		LOG_ERR("mcp342x_average_oneshot_conversion_volt() for ORP failed with exit code: %d\n", ret);
+		LOG_ERR("adc_volt_read() for ORP failed with exit code: %d\n", ret);
 		return ret;
 	}
 
@@ -182,10 +206,10 @@ static int hydrokit_read_temp(float *rtd_c_deg)
 {
 	int ret = 0;
 	float rtd_volt;
-	ret = mcp342x_average_oneshot_conversion_volt(&adc_rtd_dev, &rtd_volt, ADC_READINGS);
+	ret = adc_volt_read(&adc_rtd_dev, &rtd_volt);
 	if (ret)
 	{
-		LOG_ERR("mcp342x_average_oneshot_conversion_volt() for ORP failed with exit code: %d\n", ret);
+		LOG_ERR("adc_volt_read() for RTD failed with exit code: %d\n", ret);
 		return ret;
 	}
 
