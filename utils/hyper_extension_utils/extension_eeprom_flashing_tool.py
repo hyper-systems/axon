@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 from extension_utils import HyperExtensionEEPROM
-import busio
-import board
-import argparse
 import os
 # use MCP2221 for adafruit-blinka
 os.environ["BLINKA_MCP2221"] = "1"
+import busio
+import board
+import argparse
+
 
 
 parser = argparse.ArgumentParser()
