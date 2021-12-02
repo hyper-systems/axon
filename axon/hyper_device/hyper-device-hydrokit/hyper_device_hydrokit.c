@@ -137,7 +137,7 @@ static int hydrokit_read_ph(float *ph_volt)
 	*ph_volt = *ph_volt - 1.25;
 
 	// Subtract error
-	*ph_volt = *ph_volt - calib_data;
+	//*ph_volt = *ph_volt - calib_data;
 
 	return ret;
 }
@@ -166,7 +166,7 @@ static int hydrokit_read_orp(float *orp_volt)
 	*orp_volt = *orp_volt - 1.25;
 
 	// Subtract error
-	*orp_volt = *orp_volt - calib_data;
+	//*orp_volt = *orp_volt - calib_data;
 
 	return ret;
 }
