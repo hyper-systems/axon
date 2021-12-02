@@ -142,6 +142,35 @@ static int hydrokit_read_ph(float *ph_volt)
 	return ret;
 }
 
+static int hydrokit_read_orp(float *orp_volt)
+{
+	int ret = 0;
+	ret = adc_volt_read(&adc_orp_dev, orp_volt);
+	if (ret)
+	{
+		LOG_ERR("adc_volt_read() for ORP failed with exit code: %d\n", ret);
+		return ret;
+	}
+
+	// Read calibration data stored in the eeprom
+	float calib_data = 0;
+	ret = hydrokit_orp_calib_data_read(&calib_data);
+	if (ret)
+	{
+		LOG_ERR("hydrokit_orp_calib_data_read() failed with exit code: %d\n", ret);
+		return ret;
+	}
+	LOG_INF("hydrokit_orp_calib_data_read(): %fV", calib_data);
+
+	// Remove 1.25V of voltage reference
+	*orp_volt = *orp_volt - 1.25;
+
+	// Subtract error
+	*orp_volt = *orp_volt - calib_data;
+
+	return ret;
+}
+
 static int hydrokit_read_ec(float *ec_gain)
 {
 	int ret = 0;
@@ -168,35 +197,6 @@ static int hydrokit_read_ec(float *ec_gain)
 
 	*ec_gain = ec_raw / ec_disconnected;
 	LOG_INF("EC gain val: %f", *ec_gain);
-
-	return ret;
-}
-
-static int hydrokit_read_orp(float *orp_volt)
-{
-	int ret = 0;
-	ret = adc_volt_read(&adc_orp_dev, orp_volt);
-	if (ret)
-	{
-		LOG_ERR("adc_volt_read() for ORP failed with exit code: %d\n", ret);
-		return ret;
-	}
-
-	// Read calibration data stored in the eeprom
-	float calib_data = 0;
-	ret = hydrokit_orp_calib_data_read(&calib_data);
-	if (ret)
-	{
-		LOG_ERR("hydrokit_orp_calib_data_read() failed with exit code: %d\n", ret);
-		return ret;
-	}
-	LOG_INF("hydrokit_orp_calib_data_read(): %fV", calib_data);
-
-	// Remove 1.25V of voltage reference
-	*orp_volt = *orp_volt - 1.25;
-
-	// Subtract error
-	*orp_volt = *orp_volt - calib_data;
 
 	return ret;
 }
@@ -258,16 +258,6 @@ static hyper_result_t hyper_device_hydrokit_get_data(uint8_t *data, uint8_t *dat
 		hyper_device_13_set_raw_ph_adc_value(&hyper_device_13, ph_volt);
 	}
 
-	ret = hydrokit_read_ec(&ec_gain);
-	if (ret)
-	{
-		LOG_ERR("hydrokit_read_ec() for EC failed with exit code: %d\n", ret);
-	}
-	else
-	{
-		hyper_device_13_set_raw_ec_adc_value(&hyper_device_13, ec_gain);
-	}
-
 	ret = hydrokit_read_orp(&orp_volt);
 	if (ret)
 	{
@@ -276,6 +266,16 @@ static hyper_result_t hyper_device_hydrokit_get_data(uint8_t *data, uint8_t *dat
 	else
 	{
 		hyper_device_13_set_raw_orp_adc_value(&hyper_device_13, orp_volt);
+	}
+
+	ret = hydrokit_read_ec(&ec_gain);
+	if (ret)
+	{
+		LOG_ERR("hydrokit_read_ec() for EC failed with exit code: %d\n", ret);
+	}
+	else
+	{
+		hyper_device_13_set_raw_ec_adc_value(&hyper_device_13, ec_gain);
 	}
 
 	ret = hydrokit_read_temp(&rtd_c_deg);
