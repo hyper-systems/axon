@@ -1,5 +1,4 @@
 MAKEFILE_ROOT_PATH := $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
-SRC := $(MAKEFILE_ROOT_PATH)/mcumgr-cli/mcumgr
 
 .PHONY: all
 all: build
@@ -7,19 +6,25 @@ all: build
 ifdef CROSS
 MCUMGR_OUT_DIR = $(CROSS)
 ifeq ($(CROSS),linux/mips)
-GO_CROSS_FLAGS = GOOS=linux GOARCH=mips GOMIPS=softfloat
+export GOOS=linux
+export GOARCH=mips
+export GOMIPS=softfloat
 else ifeq ($(CROSS),linux/arm64)
-GO_CROSS_FLAGS = GOOS=linux GOARCH=arm64
+export GOOS=linux
+export GOARCH=arm64
 else ifeq ($(CROSS),linux/amd64)
-GO_CROSS_FLAGS = GOOS=linux GOARCH=amd64
+export GOOS=linux
+export GOARCH=amd64
 else
 $(error No support for specified CROSS platform: '$(CROSS)')
 endif
 else
 MCUMGR_OUT_DIR = native
 endif
+
 BUILD_DIR = $(MAKEFILE_ROOT_PATH)/build/$(MCUMGR_OUT_DIR)
 BUILD_GOPATH = $(MAKEFILE_ROOT_PATH)/build/go
+SRC_DIR = $(MAKEFILE_ROOT_PATH)/build/src
 
 
 define check_dep
@@ -30,22 +35,26 @@ endef
 check_deps:
 	$(call check_dep, go)
 
-
 .PHONY: build
 build: check_deps
-	@mkdir -p $(BUILD_DIR)
-	@mkdir -p $(BUILD_GOPATH)
-	@cd $(SRC) && \
-		export GOPATH=$(BUILD_GOPATH) && \
-		export PATH="$(BUILD_GOPATH)/bin:$${PATH}" && \
-		$(GO_CROSS_FLAGS) go get -v && \
-		$(GO_CROSS_FLAGS) go build -v -x \
-			-trimpath \
-			-ldflags="-s -w" \
-			-o $(BUILD_DIR)/mcumgr && \
-		if $$(which upx > /dev/null); then \
-			upx -9 $(BUILD_DIR)/mcumgr -o $(BUILD_DIR)/mcumgr.upx; \
-		fi
+	@mkdir -p $(BUILD_DIR) $(BUILD_GOPATH) $(SRC_DIR) && \
+	export GOPATH=$(BUILD_GOPATH) && \
+	export PATH="$(BUILD_GOPATH)/bin:$${PATH}" && \
+	cd $(SRC_DIR) && \
+	if [ ! -f mynewt-mcumgr-cli/.git/config ]; then \
+		git clone https://github.com/apache/mynewt-mcumgr-cli; \
+	else \
+		git pull; \
+	fi && \
+	cd mynewt-mcumgr-cli/mcumgr && \
+	go get -v && \
+	go build -v -x \
+		-trimpath \
+		-ldflags="-s -w" \
+		-o $(BUILD_DIR)/mcumgr && \
+	if $$(which upx > /dev/null); then \
+		upx -9 $(BUILD_DIR)/mcumgr -o $(BUILD_DIR)/mcumgr.upx; \
+	fi
 
 .PHONY: clean
 clean:
