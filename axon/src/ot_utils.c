@@ -210,7 +210,7 @@ int ot_utils_init(void)
 	axon_macaddr_get(macaddr);
 
 	// TODO: add prefix as a KConfig symbol
-	sprintf(manual_ip, "fdaa:bb:1::%02x%02x:%02x%02x:%02x%02x",
+	sprintf(manual_ip, "fdde:ad00:beef::%02x%02x:%02x%02x:%02x%02x",
 		macaddr[0], macaddr[1], macaddr[2], macaddr[3],
 		macaddr[4], macaddr[5]);
 
@@ -224,6 +224,22 @@ int ot_utils_init(void)
 	aAddress.mValid = true;
 	aAddress.mAddressOrigin = OT_ADDRESS_ORIGIN_MANUAL;
 	otIp6AddUnicastAddress(ot_context->instance, &aAddress);
+
+	// add address with legacy prefix for retro compatibility
+	sprintf(manual_ip, "fdaa:bb:1::%02x%02x:%02x%02x:%02x%02x",
+		macaddr[0], macaddr[1], macaddr[2], macaddr[3],
+		macaddr[4], macaddr[5]);
+
+	LOG_INF("Adding manual ip: %s", manual_ip);
+
+	otNetifAddress aAddress_old;
+
+	otIp6AddressFromString(manual_ip, &aAddress_old.mAddress);
+	aAddress_old.mPrefixLength = 64;
+	aAddress_old.mPreferred = true;
+	aAddress_old.mValid = true;
+	aAddress_old.mAddressOrigin = OT_ADDRESS_ORIGIN_MANUAL;
+	otIp6AddUnicastAddress(ot_context->instance, &aAddress_old);
 
 	// TODO: get proper returns
 	return 0;
