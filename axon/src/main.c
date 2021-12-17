@@ -26,24 +26,6 @@ void main(void)
 		power_down_unused_ram();
 	}
 
-#ifdef CONFIG_BOOTLOADER_MCUBOOT
-	/* Check if the image is run in the REVERT mode and eventually
-	 * confirm it to prevent reverting on the next boot.
-	 */
-	if (mcuboot_swap_type() == BOOT_SWAP_TYPE_REVERT)
-	{
-		if (boot_write_img_confirmed())
-		{
-			LOG_ERR("Confirming firmware image failed, it will be reverted on the next "
-				"boot.");
-		}
-		else
-		{
-			LOG_INF("New device firmware image confirmed.");
-		}
-	}
-#endif
-
 	// Hardware related inits
 	ret = axon_init();
 	if (ret)
