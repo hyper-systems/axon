@@ -297,7 +297,7 @@ static hyper_result_t hyper_device_hydrokit_get_data(uint8_t *data, uint8_t *dat
 	res = hyper_device_13_encode(&hyper_device_13, data, data_len);
 	if (ret != HYPER_OK)
 	{
-		LOG_ERR("hyper_device_11_encode failed with error %d", ret);
+		LOG_ERR("hyper_device_13_encode failed with error %d", ret);
 		return ret;
 	}
 	LOG_INF("Encoding device data (size=%d)", *data_len);
