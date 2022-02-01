@@ -24,7 +24,7 @@ FLASHER_RUNNER = nrfjprog
 endif
 ifeq ($(FLASHER_RUNNER),nrfjprog)
 ifeq (, $(shell which nrfjprog))
-$(error "Missing dependency: nrfjprog")
+$(warning "Missing dependency: nrfjprog")
 endif
 endif
 endif
@@ -46,8 +46,10 @@ define build_env
 		export GNUARMEMB_TOOLCHAIN_PATH="$(GNUARMEMB_TOOLCHAIN_PATH)"; \
 		test -f $(NCS_SRC_PATH)/zephyr/zephyr-env.sh && \
 			. $(NCS_SRC_PATH)/zephyr/zephyr-env.sh; \
-		ln -sf $(abspath $(GNUARMEMB_TOOLCHAIN_PATH)) \
+		rm -f $(VENV_PATH)/gnuarmemb; \
+		ln -s $(abspath $(GNUARMEMB_TOOLCHAIN_PATH)) \
 					$(VENV_PATH)/gnuarmemb; \
+		export PYTHONPATH="$$PYTHONPATH:$$(python -c 'import site; print(site.getsitepackages()[0])')"; \
 		$(1) \
 	)
 endef
@@ -58,7 +60,9 @@ define UPDATE_NRF_CMDS
 		git fetch --all && \
 		git checkout $(NRF_CONNECT_SDK_TAG) && \
 		west update && \
-		west zephyr-export && \
+		if [ ! -n "$IN_NIX_SHELL" ]; then \
+			west zephyr-export; \
+		fi && \
 		pip3 install -r $(NCS_SRC_PATH)/zephyr/scripts/requirements.txt && \
 		pip3 install -r $(NCS_SRC_PATH)/nrf/scripts/requirements.txt && \
 		pip3 install -r $(NCS_SRC_PATH)/bootloader/mcuboot/scripts/requirements.txt \
@@ -102,10 +106,6 @@ $(NCS_SRC_PATH):
 
 .PHONY: bootstrap_build_env
 bootstrap_build_env: check_deps bootstrap_python_venv $(NCS_SRC_PATH)
-	$(call build_env,\
-		pip3 install -r $(COMMON_ROOT_PATH)/utils/hyper_extension_utils/requirements.txt \
-	)
-	
 
 .PHONY: build
 build: bootstrap_build_env check_deps
