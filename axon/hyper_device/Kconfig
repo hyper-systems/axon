@@ -10,4 +10,5 @@ config HYPER_DEVICE
 
 if HYPER_DEVICE
 rsource "hyper-device-hydrokit/Kconfig"
+rsource "hyper-device-as-co2/Kconfig"
 endif
