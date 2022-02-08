@@ -1,8 +1,10 @@
+# project ignores
 *.virtualenvs
 build
 ncs
 __pycache__
 *.hex
+.nix
 
 # Python
 .venv
