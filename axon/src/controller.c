@@ -4,7 +4,12 @@
 #include "transport.h"
 #include "hyper_device_axon.h"
 #include "hyper_device_mcu.h"
+#ifdef CONFIG_HYPER_DEVICE_HYDROKIT
 #include "hyper_device_hydrokit.h"
+#endif
+#ifdef CONFIG_HYPER_DEVICE_AS_CO2
+#include "hyper_device_as_co2.h"
+#endif
 
 #include "hyper_device_utils.h"
 
@@ -74,6 +79,7 @@ static int hyper_controller_extensions_registry_update()
 	{
 		uint32_t extension_class_id = 0;
 		hyper_extension_class_id_read(&extension_class_id);
+#ifdef CONFIG_HYPER_DEVICE_HYDROKIT
 		if (hyper_device_hydrokit_is_hydrokit(extension_class_id))
 		{
 			ret = hyper_device_hydrokit_init(hyper_extensions_registry);
@@ -83,12 +89,20 @@ static int hyper_controller_extensions_registry_update()
 				return ret;
 			}
 		}
-		else
+#endif
+#ifdef CONFIG_HYPER_DEVICE_AS_CO2
+		if (hyper_device_as_co2_is_as_co2(extension_class_id))
 		{
-
-			LOG_ERR("Extension detection error!");
-			ret = 1;
+			ret = hyper_device_as_co2_init(hyper_extensions_registry);
+			if (ret)
+			{
+				LOG_ERR("hyper_device_as_co2_init() failed with exit code: %d\n", ret);
+				return ret;
+			}
 		}
+#endif
+		LOG_ERR("Extension detection error!");
+		ret = 1;
 	}
 	if (hyper_extension_type == HYPER_EXTENSION_MCU)
 	{
