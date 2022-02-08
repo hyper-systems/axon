@@ -308,14 +308,14 @@ static hyper_result_t hyper_device_hydrokit_get_data(uint8_t *data, uint8_t *dat
 bool hyper_device_hydrokit_is_hydrokit(uint32_t class_id)
 {
 	int i;
-	for (i = 0; i < sizeof(hydrokit_class_ids); i++)
+	for (i = 0; i < sizeof(hydrokit_class_ids) / sizeof(hydrokit_class_ids[0]); i++)
 	{
 		if (hydrokit_class_ids[i] == class_id)
 		{
 			return true;
 		}
 	}
-	return true;
+	return false;
 }
 
 int hyper_device_hydrokit_init(hyper_device_reg_t *reg)
