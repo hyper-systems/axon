@@ -1,0 +1,7 @@
+#
+# Copyright (c) 2022 Hyper Collective LTD
+#
+
+config HYPER_DEVICE_AS_CO2
+	bool "hyper-device-as-co2"
+	default y

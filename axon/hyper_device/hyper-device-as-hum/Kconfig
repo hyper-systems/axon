@@ -1,0 +1,7 @@
+#
+# Copyright (c) 2022 Hyper Collective LTD
+#
+
+config HYPER_DEVICE_AS_HUM
+	bool "hyper-device-as-hum"
+	default y
