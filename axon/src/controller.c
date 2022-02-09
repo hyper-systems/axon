@@ -10,6 +10,9 @@
 #ifdef CONFIG_HYPER_DEVICE_AS_CO2
 #include "hyper_device_as_co2.h"
 #endif
+#ifdef CONFIG_HYPER_DEVICE_AS_HUM
+#include "hyper_device_as_hum.h"
+#endif
 
 #include "hyper_device_utils.h"
 
@@ -97,6 +100,17 @@ static int hyper_controller_extensions_registry_update()
 			if (ret)
 			{
 				LOG_ERR("hyper_device_as_co2_init() failed with exit code: %d\n", ret);
+				return ret;
+			}
+		}
+#endif
+#ifdef CONFIG_HYPER_DEVICE_AS_HUM
+		if (hyper_device_as_hum_is_as_hum(extension_class_id))
+		{
+			ret = hyper_device_as_hum_init(hyper_extensions_registry);
+			if (ret)
+			{
+				LOG_ERR("hyper_device_as_hum_init() failed with exit code: %d\n", ret);
 				return ret;
 			}
 		}
