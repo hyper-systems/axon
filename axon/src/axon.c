@@ -231,6 +231,50 @@ int hyper_extension_bus_i2c_read(uint8_t *buf, uint32_t num_bytes, uint16_t addr
 	return ret;
 }
 
+int hyper_extension_bus_i2c_write_read(uint16_t addr, const void *write_buf, size_t num_write,
+				       void *read_buf, size_t num_read)
+{
+	int ret = i2c_write_read(ext_i2c_bus_dev, addr, write_buf, num_write, read_buf, num_read);
+	if (ret == -EBUSY)
+	{
+		LOG_ERR("i2c returned -EBUSY (-16), panicing...");
+		k_panic();
+	}
+	return ret;
+}
+
+int hyper_extension_bus_i2c_burst_read(uint16_t dev_addr, uint8_t start_addr, uint8_t *buf,
+				       uint32_t num_bytes)
+{
+	int ret = i2c_burst_read(ext_i2c_bus_dev, dev_addr, start_addr, buf, num_bytes);
+	if (ret == -EBUSY)
+	{
+		LOG_ERR("i2c returned -EBUSY (-16), panicing...");
+		k_panic();
+	}
+	return ret;
+}
+
+int hyper_extension_bus_i2c_reg_read_byte(uint16_t dev_addr, uint8_t reg_addr, uint8_t *value) {
+	int ret = i2c_reg_read_byte(ext_i2c_bus_dev, dev_addr, reg_addr, value);
+	if (ret == -EBUSY)
+	{
+		LOG_ERR("i2c returned -EBUSY (-16), panicing...");
+		k_panic();
+	}
+	return ret;
+}
+
+int hyper_extension_bus_i2c_reg_write_byte(uint16_t dev_addr, uint8_t reg_addr, uint8_t value) {
+	int ret = i2c_reg_write_byte(ext_i2c_bus_dev, dev_addr, reg_addr, value);
+	if (ret == -EBUSY)
+	{
+		LOG_ERR("i2c returned -EBUSY (-16), panicing...");
+		k_panic();
+	}
+	return ret;
+}
+
 int hyper_extension_eeprom_read(uint8_t *buff, uint8_t len, uint8_t pointer, uint16_t i2c_addr)
 {
 	int ret = i2c_write(ext_i2c_bus_dev, &pointer, 1, i2c_addr);
@@ -260,14 +304,14 @@ int hyper_extension_eui48_read(uint8_t *data)
 int hyper_extension_class_id_read(uint32_t *data)
 {
 	return hyper_extension_eeprom_read((uint8_t *)data, sizeof(uint32_t), 0x00,
-									   EEPROM_24AA02E48_I2C_ADDR);
+					   EEPROM_24AA02E48_I2C_ADDR);
 }
 
 int hyper_extension_data_read(uint8_t *data, uint8_t len, uint8_t offset)
 {
 	return hyper_extension_eeprom_read(data, len,
-									   HYPER_EXTENSION_DATA_EEPROM_OFFSET + offset,
-									   EEPROM_24AA02E48_I2C_ADDR);
+					   HYPER_EXTENSION_DATA_EEPROM_OFFSET + offset,
+					   EEPROM_24AA02E48_I2C_ADDR);
 }
 
 // checks if extension is connected by probing its EEPROM
@@ -349,7 +393,7 @@ void axon_publish_interval_timer_reset(void)
 {
 	k_timer_stop(&axon_publish_interval_timer);
 	k_timer_start(&axon_publish_interval_timer, K_SECONDS(axon_publish_interval),
-				  K_SECONDS(axon_publish_interval));
+		      K_SECONDS(axon_publish_interval));
 }
 
 static int axon_led_init()

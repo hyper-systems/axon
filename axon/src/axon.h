@@ -31,6 +31,12 @@ hyper_extension_type_t hyper_extension_get_type(void);
 
 int hyper_extension_bus_i2c_write(const uint8_t *buf, uint32_t num_bytes, uint16_t addr);
 int hyper_extension_bus_i2c_read(uint8_t *buf, uint32_t num_bytes, uint16_t addr);
+int hyper_extension_bus_i2c_write_read(uint16_t addr, const void *write_buf, size_t num_write,
+				       void *read_buf, size_t num_read);
+int hyper_extension_bus_i2c_burst_read(uint16_t dev_addr, uint8_t start_addr, uint8_t *buf,
+				       uint32_t num_bytes);
+int hyper_extension_bus_i2c_reg_read_byte(uint16_t dev_addr, uint8_t reg_addr, uint8_t *value);
+int hyper_extension_bus_i2c_reg_write_byte(uint16_t dev_addr, uint8_t reg_addr, uint8_t value);
 
 float axon_temp_get(void);
 #ifdef ENVIRONMENT_SENSOR_HAS_PRESSURE
