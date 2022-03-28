@@ -14,8 +14,8 @@ self: super: {
     platform = supported.${super.system} or (throw
       "unsupported platform ${super.system}");
 
-    version = "10.15.2";
-    subdir = "Versions-10-x-x/10-15-2";
+    version = "10.15.4";
+    subdir = "Versions-10-x-x/10-15-4";
 
     url =
       "https://www.nordicsemi.com/-/media/Software-and-other-downloads/Desktop-software/nRF-command-line-tools/sw/${subdir}/nrf-command-line-tools-${version}_Linux-${platform.name}.tar.gz";
@@ -34,11 +34,6 @@ self: super: {
       mkdir -p $out
       cp -r * $out/
     '';
-    # preFixup = ''
-    #   # Workaround to setting runtime dependecy
-    #   patchelf --add-rpath ${super.segger-jlink}/lib/libjlinkarm.so $out/bin/nrfjprog
-    #   patchelf --add-rpath ${super.segger-jlink}/lib/libjlinkarm.so $out/lib/*
-    # '';
     meta = with super.lib; {
       description = "nRF Command Line Tools";
       homepage =
