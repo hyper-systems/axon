@@ -2,7 +2,7 @@
 #include <kernel.h>
 #include <logging/log.h>
 #include <sys/printk.h>
-#include <power/reboot.h>
+#include <sys/reboot.h>
 #include <device.h>
 #include <devicetree.h>
 #include <drivers/sensor.h>

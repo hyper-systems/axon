@@ -1,10 +1,8 @@
 PROJECT_ROOT_PATH := $(abspath $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
 include $(PROJECT_ROOT_PATH)/../common.mk
 
-OVERLAY_CONFIG_DEFAULT := $(OVERLAY_CONFIG_DEFAULT);$(COMMON_ROOT_PATH)/overlays/overlay-hyper-ot.conf;overlay-nrf5.conf
-
 # add Nordic OpenThread Defaults overlay
-OT_OVERLAY := $(COMMON_ROOT_PATH)/ncs/nrf/samples/openthread/common/overlay-ot-defaults.conf
+OT_OVERLAY := $(COMMON_ROOT_PATH)/overlays/overlay-ot.conf
 # insert prj.conf again to reset some of the previous overrides
 OT_OVERLAY := $(OT_OVERLAY);$(PROJECT_ROOT_PATH)/prj.conf
 # add Hyper OpenThread overlay

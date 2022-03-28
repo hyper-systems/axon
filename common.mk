@@ -3,7 +3,7 @@ COMMON_ROOT_PATH := $(abspath $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEF
 VENV_PATH = $(COMMON_ROOT_PATH)/.venv
 NCS_SRC_PATH = $(COMMON_ROOT_PATH)/ncs
 NRF_CONNECT_SDK_REPO = https://github.com/nrfconnect/sdk-nrf
-NRF_CONNECT_SDK_TAG = v1.7.1
+NRF_CONNECT_SDK_TAG = v1.9.1
 GNUARMEMB_TOOLCHAIN_VERSION ?= 9-2019-q4-major
 UNAME_S := $(shell uname -s)
 
