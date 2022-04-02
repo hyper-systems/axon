@@ -15,6 +15,25 @@ let
     fi
     source .venv/bin/activate
       '';
+  mcp2221ShellHook = ''
+    # use MCP2221 for adafruit-blinka
+    export BLINKA_MCP2221=1
+    ${if stdenv.isLinux then ''
+      if [ ! -f /etc/udev/rules.d/99-mcp2221.rules ]; then
+        printf "Installing udev rule for mcp2221 at '/etc/udev/rules.d/99-mcp2221.rules':"
+        echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="04d8", ATTR{idProduct}=="00dd", MODE="0666"' | \
+          sudo tee /etc/udev/rules.d/99-mcp2221.rules && echo "Done!"
+      fi
+      if ! grep -q 'blacklist hid_mcp2221' /etc/modprobe.d/blacklist.conf; then
+        echo "Blacklisting hid_mcp2221 Kernel module:"
+        sudo rmmod hid_mcp2221 > /dev/null 2>&1
+        echo 'blacklist hid_mcp2221' | sudo tee -a /etc/modprobe.d/blacklist.conf
+        sudo update-initramfs -u
+        echo "Done!"
+      fi
+    '' else
+      ""}
+      '';
 
 in mkShell {
   nativeBuildInputs = with buildPackages; [ which ];
@@ -29,20 +48,7 @@ in mkShell {
   ];
   shellHook = ''
     export PS1="[\[\033[1;34m\]nix\[\033[0m\]] $PS1"
-    ${if stdenv.isLinux then ''
-      if [ ! -f /etc/udev/rules.d/99-mcp2221.rules ]; then
-        printf "Installing udev rule for mcp2221 at '/etc/udev/rules.d/99-mcp2221.rules':"
-        echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="04d8", ATTR{idProduct}=="00dd", MODE="0666"' | \
-          sudo tee /etc/udev/rules.d/99-mcp2221.rules && echo "Done!"
-      fi
-      if ! grep -q 'blacklist hid_mcp2221' /etc/modprobe.d/blacklist.conf; then
-        echo "Blacklisting hid_mcp2221 Kernel module:"
-        sudo rmmod hid_mcp2221 > /dev/null 2>&1
-        echo 'blacklist hid_mcp2221' | sudo tee -a /etc/modprobe.d/blacklist.conf
-        sudo update-initramfs -u
-        echo "Done!"
-      fi
-    '' else ""}
+    ${mcp2221ShellHook}
     ${setupVenv}
   '';
 }
