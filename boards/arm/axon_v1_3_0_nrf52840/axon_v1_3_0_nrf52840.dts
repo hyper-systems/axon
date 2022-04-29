@@ -66,6 +66,19 @@
 	rx-pin = <36>;
 };
 
+&uart1 {
+	compatible = "nordic,nrf-uarte";
+	status = "okay";
+	current-speed = <9600>;
+	tx-pin = <29>;
+	rx-pin = <31>;
+	modbus0 {
+		compatible = "zephyr,modbus-serial";
+		label = "MODBUS0";
+		status = "okay";
+	};
+};
+
 &i2c0 {
 	compatible = "nordic,nrf-twi";
 	status = "okay";
@@ -78,8 +91,8 @@
 	};
 	veml7700@10 {
 		compatible = "vishay,veml7700";
-		label = "VEML7700";
 		reg = <0x10>;
+		label = "VEML7700";
 	};
 };
 
