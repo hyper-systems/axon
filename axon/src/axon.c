@@ -255,7 +255,8 @@ int hyper_extension_bus_i2c_burst_read(uint16_t dev_addr, uint8_t start_addr, ui
 	return ret;
 }
 
-int hyper_extension_bus_i2c_reg_read_byte(uint16_t dev_addr, uint8_t reg_addr, uint8_t *value) {
+int hyper_extension_bus_i2c_reg_read_byte(uint16_t dev_addr, uint8_t reg_addr, uint8_t *value)
+{
 	int ret = i2c_reg_read_byte(ext_i2c_bus_dev, dev_addr, reg_addr, value);
 	if (ret == -EBUSY)
 	{
@@ -265,7 +266,8 @@ int hyper_extension_bus_i2c_reg_read_byte(uint16_t dev_addr, uint8_t reg_addr, u
 	return ret;
 }
 
-int hyper_extension_bus_i2c_reg_write_byte(uint16_t dev_addr, uint8_t reg_addr, uint8_t value) {
+int hyper_extension_bus_i2c_reg_write_byte(uint16_t dev_addr, uint8_t reg_addr, uint8_t value)
+{
 	int ret = i2c_reg_write_byte(ext_i2c_bus_dev, dev_addr, reg_addr, value);
 	if (ret == -EBUSY)
 	{
@@ -350,10 +352,18 @@ static int axon_sensors_init(void)
 {
 	int retval = 0;
 	if (hyper_dev_init(&env_sensors, ENV_SENSORS_LABEL))
+#ifdef CONFIG_BOARD_AXON_V0_2_NRF52840
 		retval = 1;
+#else
+		retval = 0;
+#endif
 
 	if (hyper_dev_init(&als_sensor, ALS_SENSOR_LABEL))
+#ifdef CONFIG_BOARD_AXON_V0_2_NRF52840
 		retval = 1;
+#else
+		retval = 0;
+#endif
 
 	return retval;
 }

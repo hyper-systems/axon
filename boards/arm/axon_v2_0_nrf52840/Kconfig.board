@@ -1,0 +1,8 @@
+# Axon v1.0 board configuration
+
+# Copyright (c) 2021 Hyper Collective LTD
+# All rights reserved
+
+config BOARD_AXON_V2_0_NRF52840
+	bool "Axon v2.0 nrf52840"
+	depends on SOC_NRF52840_QIAA
