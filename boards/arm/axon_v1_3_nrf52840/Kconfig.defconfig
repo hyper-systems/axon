@@ -3,12 +3,12 @@
 # Copyright (c) 2021 Hyper Collective LTD
 # All rights reserved
 
-if BOARD_AXON_V1_3_0_NRF52840
+if BOARD_AXON_V1_3_NRF52840
 
 config BOARD
-	default "axon_v1_3_0_nrf52840"
+	default "axon_v1_3_nrf52840"
 
 config BT_CTLR
 	default BT
 
-endif # BOARD_AXON_V1_3_0_NRF52840
+endif # BOARD_AXON_V1_3_NRF52840
