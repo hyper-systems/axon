@@ -72,7 +72,7 @@ static hyper_result_t hyper_device_as_co2_get_data(uint8_t *data, uint8_t *data_
 	ret = hyper_device_as_ezo_co2_read(&co2_ppm);
 	if (ret)
 	{
-		LOG_ERR("hydrokit_read_ph() for pH failed with exit code: %d\n", ret);
+		LOG_ERR("hyper_device_as_ezo_co2_read() for pH failed with exit code: %d\n", ret);
 	}
 	else
 	{

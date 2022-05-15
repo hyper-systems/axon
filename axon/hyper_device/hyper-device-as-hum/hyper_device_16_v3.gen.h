@@ -1,4 +1,4 @@
-// --- HYPER GENERATED CODE %VERSION% 1644418594 ---
+// --- HYPER GENERATED CODE %VERSION% 1644756134 ---
 //
 // WARNING
 //
@@ -107,7 +107,7 @@ void hyper_device_16_set_dew_point_temperature(hyper_device_16_t * device, float
 // --- ENCODE DEVICE ---
 hyper_result_t hyper_device_16_encode(hyper_device_16_t * device, uint8_t * out, uint8_t * out_len) {
   cmp_ctx_t cmp_ctx = {0};
-  buffer_t msgpack_buf = {out, 0};
+  hyper_msgpack_buffer_t msgpack_buf = {out, 0};
 
   cmp_init(&cmp_ctx, (void *)&msgpack_buf, NULL, NULL, hyper_device_msgpack_writer);
 
@@ -183,7 +183,7 @@ hyper_result_t hyper_device_16_encode(hyper_device_16_t * device, uint8_t * out,
 // --- DECODE DEVICE ---
 hyper_result_t hyper_device_16_decode(hyper_device_16_t * device, uint8_t * in, uint8_t in_size) {
   cmp_ctx_t cmp_ctx = {0};
-  buffer_t msgpack_buf = {in, 0};
+  hyper_msgpack_buffer_t msgpack_buf = {in, 0};
 
   cmp_init(&cmp_ctx, (void *)&msgpack_buf, hyper_device_msgpack_reader, NULL, NULL);
       

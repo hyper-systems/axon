@@ -1,4 +1,4 @@
-// --- HYPER GENERATED CODE %VERSION% 1637347800 ---
+// --- HYPER GENERATED CODE %VERSION% 1644756134 ---
 //
 // WARNING
 //
@@ -213,7 +213,7 @@ void hyper_device_11_set_publish_interval(hyper_device_11_t * device, uint16_t v
 // --- ENCODE DEVICE ---
 hyper_result_t hyper_device_11_encode(hyper_device_11_t * device, uint8_t * out, uint8_t * out_len) {
   cmp_ctx_t cmp_ctx = {0};
-  buffer_t msgpack_buf = {out, 0};
+  hyper_msgpack_buffer_t msgpack_buf = {out, 0};
 
   cmp_init(&cmp_ctx, (void *)&msgpack_buf, NULL, NULL, hyper_device_msgpack_writer);
 
@@ -224,7 +224,7 @@ hyper_result_t hyper_device_11_encode(hyper_device_11_t * device, uint8_t * out,
   }
          
   // Device info.
-  if (!cmp_write_u32(&cmp_ctx, device->device_class_id)) {
+  if (!cmp_write_uinteger(&cmp_ctx, device->device_class_id)) {
     HYPER_PRINTF("%s\n", cmp_strerror(&cmp_ctx));
     return HYPER_ERR_ENCODE;
   }
@@ -354,7 +354,7 @@ hyper_result_t hyper_device_11_encode(hyper_device_11_t * device, uint8_t * out,
 // --- DECODE DEVICE ---
 hyper_result_t hyper_device_11_decode(hyper_device_11_t * device, uint8_t * in, uint8_t in_size) {
   cmp_ctx_t cmp_ctx = {0};
-  buffer_t msgpack_buf = {in, 0};
+  hyper_msgpack_buffer_t msgpack_buf = {in, 0};
 
   cmp_init(&cmp_ctx, (void *)&msgpack_buf, hyper_device_msgpack_reader, NULL, NULL);
       
@@ -501,13 +501,17 @@ hyper_result_t hyper_device_11_decode(hyper_device_11_t * device, uint8_t * in, 
 
 
 // --- DISPATCH DEVICE ---
-void hyper_device_11_dispatch(hyper_device_11_t * device) {
+uint8_t hyper_device_11_dispatch(hyper_device_11_t * device) {
+  uint8_t count = 0;
   if (device->on_reboot_update && device->reboot_set) {
     device->on_reboot_update(device->reboot);
+    ++count;
   }
   if (device->on_publish_interval_update && device->publish_interval_set) {
     device->on_publish_interval_update(device->publish_interval);
+    ++count;
   }
+  return count;
 }
 
 

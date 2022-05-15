@@ -79,7 +79,7 @@ static hyper_result_t hyper_device_as_hum_get_data(uint8_t *data, uint8_t *data_
 	ret = hyper_device_as_ezo_hum_read(&temp, &hum, &dew);
 	if (ret)
 	{
-		LOG_ERR("hydrokit_read_ph() for pH failed with exit code: %d\n", ret);
+		LOG_ERR("hyper_device_as_ezo_hum_readh() for pH failed with exit code: %d\n", ret);
 	}
 	else
 	{
