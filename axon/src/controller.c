@@ -16,6 +16,9 @@
 #ifdef CONFIG_HYPER_DEVICE_AS_FLO
 #include "hyper_device_as_flo.h"
 #endif
+#ifdef CONFIG_HYPER_DEVICE_POWERMETER
+#include "hyper_device_powermeter.h"
+#endif
 
 #include "hyper_device_utils.h"
 
@@ -127,6 +130,17 @@ static int hyper_controller_extensions_registry_update()
 			if (ret)
 			{
 				LOG_ERR("hyper_device_as_flo_init() failed with exit code: %d\n", ret);
+				return ret;
+			}
+		}
+#endif
+#ifdef CONFIG_HYPER_DEVICE_POWERMETER
+		else if (hyper_device_powermeter_is_powermeter(extension_class_id))
+		{
+			ret = hyper_device_powermeter_init(hyper_extensions_registry);
+			if (ret)
+			{
+				LOG_ERR("hyper_device_powermeter_init() failed with exit code: %d\n", ret);
 				return ret;
 			}
 		}
