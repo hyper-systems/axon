@@ -13,6 +13,9 @@
 #ifdef CONFIG_HYPER_DEVICE_AS_HUM
 #include "hyper_device_as_hum.h"
 #endif
+#ifdef CONFIG_HYPER_DEVICE_AS_FLO
+#include "hyper_device_as_flo.h"
+#endif
 
 #include "hyper_device_utils.h"
 
@@ -117,6 +120,17 @@ static int hyper_controller_extensions_registry_update()
 #endif
 		LOG_ERR("Extension detection error!");
 		ret = 1;
+#ifdef CONFIG_HYPER_DEVICE_AS_FLO
+		else if (hyper_device_as_flo_is_as_flo(extension_class_id))
+		{
+			ret = hyper_device_as_flo_init(hyper_extensions_registry);
+			if (ret)
+			{
+				LOG_ERR("hyper_device_as_flo_init() failed with exit code: %d\n", ret);
+				return ret;
+			}
+		}
+#endif
 	}
 	if (hyper_extension_type == HYPER_EXTENSION_MCU)
 	{

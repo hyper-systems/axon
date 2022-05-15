@@ -1,0 +1,7 @@
+#
+# Copyright (c) 2022 Hyper Collective LTD
+#
+
+config HYPER_DEVICE_AS_FLO
+	bool "hyper-device-as-flo"
+	default y
