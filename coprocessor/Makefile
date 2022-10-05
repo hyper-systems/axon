@@ -19,3 +19,11 @@ build: check_deps
 			-DOVERLAY_CONFIG="$(OVERLAY_CONFIG_DEFAULT)" \
 			$(USB_DTC_OVERLAY) \
 	)
+
+.PHONY: build_dongle
+build_dongle: check_deps
+	$(call build_env,\
+		west build -b nrf52840dongle_nrf52840 -- \
+			-DOVERLAY_CONFIG="$(OVERLAY_CONFIG_DEFAULT)" \
+			$(USB_DTC_OVERLAY) \
+	)
