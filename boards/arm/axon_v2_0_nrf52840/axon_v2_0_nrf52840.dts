@@ -25,6 +25,9 @@
 		pwm_led0: pwm_led_0 {
 			pwms = <&pwm0 15>;
 		};
+		pwm_led1: pwm_led_1 {
+			pwms = <&pwm1 22>;
+		};
 	};
 
 	buttons {
@@ -38,6 +41,7 @@
 	/* These aliases are provided for compatibility with samples */
 	aliases {
 		pwm-led0 = &pwm_led0;
+		pwm-led1 = &pwm_led1;
 		sw0 = &button0;
 	};
 };
@@ -119,6 +123,11 @@
 	ch0-pin = <15>;
 	ch0-inverted;
 };
+&pwm1 {
+	status = "okay";
+	ch0-pin = <22>;
+	ch0-inverted;
+};
 
 &spi3 {
 	compatible = "nordic,nrf-spi";
@@ -126,6 +135,29 @@
 	sck-pin = <3>;
 	mosi-pin = <42>;
 	miso-pin = <43>;
+};
+
+&qspi {
+	status = "okay";
+	sck-pin = <12>;
+	io-pins = <4>, <51>, <5>, <7>;
+	csn-pins = <8>;
+	gd25q16: gd25q16@0 {
+		/* NOTE: Quad mode not supported as driver does not handle
+		 * QE bit setting in SR2. Ref. GD25Q16C, Rev 3.0, p. 12.
+		 */
+		compatible = "nordic,qspi-nor";
+		reg = <0>;
+		writeoc = "pp2o";
+		readoc = "read2io";
+		sck-frequency = <16000000>;
+		label = "GD25Q16";
+		jedec-id = [ c8 40 15  ];
+		size = <16777216>;
+		has-dpd;
+		t-enter-dpd = <20000>;
+		t-exit-dpd = <20000>;
+	};
 };
 
 &flash0 {

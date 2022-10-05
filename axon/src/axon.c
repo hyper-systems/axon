@@ -31,7 +31,8 @@ LOG_MODULE_REGISTER(axon_device, CONFIG_MAIN_LOG_LEVEL);
 
 #define LED_PWM_LABEL(led_node_id) DT_PROP_OR(led_node_id, label, NULL),
 
-#define PWMLED1 0
+#define PWM_LED_0 0
+#define PWM_LED_1 1
 
 const struct device *led_pwm;
 
@@ -424,10 +425,10 @@ static int axon_led_init()
 	return ret;
 }
 
-int axon_led_set_blink(uint32_t delay_on, uint32_t delay_off)
+int axon_led_0_set_blink(uint32_t delay_on, uint32_t delay_off)
 {
 	int ret = 0;
-	ret = led_blink(led_pwm, PWMLED1, delay_on, delay_off);
+	ret = led_blink(led_pwm, PWM_LED_0, delay_on, delay_off);
 	if (ret < 0)
 	{
 		LOG_ERR("led_blink() failed with exit code: %d\n", ret);
@@ -437,11 +438,18 @@ int axon_led_set_blink(uint32_t delay_on, uint32_t delay_off)
 	return ret;
 }
 
-int axon_led_set_on()
+int axon_led_0_set_on(uint8_t brightness)
 {
 	int ret = 0;
 
-	ret = led_on(led_pwm, PWMLED1);
+	ret = led_on(led_pwm, PWM_LED_0);
+	if (ret < 0)
+	{
+		LOG_ERR("led_on() failed with exit code: %d\n", ret);
+		return ret;
+	}
+
+	ret = led_set_brightness(led_pwm, PWM_LED_0, brightness);
 	if (ret < 0)
 	{
 		LOG_ERR("led_on() failed with exit code: %d\n", ret);
@@ -451,11 +459,11 @@ int axon_led_set_on()
 	return ret;
 }
 
-int axon_led_set_off()
+int axon_led_0_set_off()
 {
 	int ret = 0;
 
-	ret = led_off(led_pwm, PWMLED1);
+	ret = led_off(led_pwm, PWM_LED_0);
 	if (ret < 0)
 	{
 		LOG_ERR("led_off() failed with exit code: %d\n", ret);
@@ -464,6 +472,56 @@ int axon_led_set_off()
 
 	return ret;
 }
+
+#if defined(CONFIG_BOARD_AXON_V2_0_NRF52840)
+int axon_led_1_set_blink(uint32_t delay_on, uint32_t delay_off)
+{
+	int ret = 0;
+	ret = led_blink(led_pwm, PWM_LED_1, delay_on, delay_off);
+	if (ret < 0)
+	{
+		LOG_ERR("led_blink() failed with exit code: %d\n", ret);
+		return ret;
+	}
+
+	return ret;
+}
+
+int axon_led_1_set_on(uint8_t brightness)
+{
+	int ret = 0;
+
+	ret = led_on(led_pwm, PWM_LED_1);
+	if (ret < 0)
+	{
+		LOG_ERR("led_on() failed with exit code: %d\n", ret);
+		return ret;
+	}
+
+	ret = led_set_brightness(led_pwm, PWM_LED_1, brightness);
+	if (ret < 0)
+	{
+		LOG_ERR("led_on() failed with exit code: %d\n", ret);
+		return ret;
+	}
+
+	return ret;
+}
+
+int axon_led_1_set_off()
+{
+	int ret = 0;
+
+	ret = led_off(led_pwm, PWM_LED_1);
+	if (ret < 0)
+	{
+		LOG_ERR("led_off() failed with exit code: %d\n", ret);
+		return ret;
+	}
+
+	return ret;
+}
+#endif
 
 #ifndef CONFIG_BOARD_AXON_V0_2_NRF52840
 __unused
@@ -686,19 +744,19 @@ int axon_init(void)
 	// LED Blink test patterns
 	// while (true)
 	// {
-	// axon_led_set_blink(130, 130);
+	// axon_led_0_set_blink(130, 130);
 	// k_sleep(K_MSEC(5000));
-	// axon_led_set_blink(30, 130);
+	// axon_led_0_set_blink(30, 130);
 	// k_sleep(K_MSEC(5000));
-	// axon_led_set_blink(130, 30);
+	// axon_led_0_set_blink(130, 30);
 	// k_sleep(K_MSEC(5000));
-	// axon_led_set_blink(40, 40);
+	// axon_led_0_set_blink(40, 40);
 	// k_sleep(K_MSEC(5000));
-	// axon_led_set_blink(10, 130);
+	// axon_led_0_set_blink(10, 130);
 	// k_sleep(K_MSEC(5000));
-	// axon_led_set_off();
+	// axon_led_0_set_off();
 	// k_sleep(K_MSEC(5000));
-	// axon_led_set_on();
+	// axon_led_0_set_on();
 	// k_sleep(K_MSEC(5000));
 	// }
 

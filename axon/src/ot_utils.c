@@ -35,7 +35,10 @@ static struct k_work on_disconnect_work;
 static void on_ot_connect(struct k_work *item)
 {
 	ARG_UNUSED(item);
-	axon_led_set_on();
+#if defined(CONFIG_BOARD_AXON_V2_0_NRF52840)
+	axon_led_1_set_off();
+#endif
+	axon_led_0_set_on(255);
 }
 
 /** @brief Function called when OpenThread connection is ended.
@@ -45,7 +48,12 @@ static void on_ot_connect(struct k_work *item)
 static void on_ot_disconnect(struct k_work *item)
 {
 	ARG_UNUSED(item);
-	axon_led_set_blink(30, 130);
+#if defined(CONFIG_BOARD_AXON_V2_0_NRF52840)
+	axon_led_1_set_blink(30, 130);
+	axon_led_0_set_off();
+#else
+	axon_led_0_set_blink(30, 130);
+#endif
 }
 
 /** @brief Function called when the MTD modes are toggled.

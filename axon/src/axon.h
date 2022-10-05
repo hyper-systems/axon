@@ -52,9 +52,14 @@ uint16_t axon_publish_interval_get(void);
 void axon_publish_interval_set(uint16_t publish_interval);
 void axon_publish_interval_timer_reset(void);
 void axon_publish_interval_callback_set(void (*publish_interval_cb)(void));
-int axon_led_set_blink(uint32_t delay_on, uint32_t delay_off);
-int axon_led_set_on(void);
-int axon_led_set_off(void);
+int axon_led_0_set_blink(uint32_t delay_on, uint32_t delay_off);
+int axon_led_0_set_on(uint8_t brightness);
+int axon_led_0_set_off(void);
+#if defined(CONFIG_BOARD_AXON_V2_0_NRF52840)
+int axon_led_1_set_blink(uint32_t delay_on, uint32_t delay_off);
+int axon_led_1_set_on(uint8_t brightness);
+int axon_led_1_set_off(void);
+#endif
 
 typedef uint8_t hyper_extension_bus_mux_state_t;
 void hyper_extension_bus_mux_reset(void);
